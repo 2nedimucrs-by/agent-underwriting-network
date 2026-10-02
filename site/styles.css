@@ -967,3 +967,34 @@ button, input, select { font: inherit; }
 .workspace-row span {
   overflow-wrap: anywhere;
 }
+
+.notification-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.notification-row:last-child {
+  border-bottom: 0;
+}
+
+.notification-row > div {
+  display: grid;
+  gap: 4px;
+}
+
+.notification-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.notification-row.is-read {
+  opacity: .65;
+}
+
+.notification-state {
+  white-space: nowrap;
+}
