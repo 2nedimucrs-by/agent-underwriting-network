@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": null,
+  "notice": "Bootstrap placeholder. Scheduled discovery refreshes this during site deployment. DISCOVERED does not mean VERIFIED.",
+  "agents": [],
+  "failures": []
+}
