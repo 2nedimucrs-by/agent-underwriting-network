@@ -25,11 +25,14 @@ language sql
 stable
 security definer
 set search_path = public
-as $$
+as $
   select exists (
     select 1 from public.admin_users where user_id = auth.uid()
   );
-$$;
+$;
+
+revoke all on function public.is_aun_admin() from public;
+grant execute on function public.is_aun_admin() to authenticated;
 
 create table if not exists public.agent_claims (
   id uuid primary key default gen_random_uuid(),
@@ -132,6 +135,37 @@ alter table public.agent_alerts enable row level security;
 alter table public.analytics_events enable row level security;
 alter table public.account_deletion_requests enable row level security;
 alter table public.outreach_suppression enable row level security;
+
+-- Explicit Data API grants.
+-- New Supabase projects no longer necessarily expose public tables automatically.
+-- Grants answer "may this role attempt the operation?"; RLS policies below answer
+-- "which rows may that role actually touch?".
+grant usage on schema public to anon, authenticated;
+
+revoke all on table public.profiles from anon, authenticated;
+grant select, update on table public.profiles to authenticated;
+
+revoke all on table public.admin_users from anon, authenticated;
+grant select on table public.admin_users to authenticated;
+
+revoke all on table public.agent_claims from anon, authenticated;
+grant select, insert, update on table public.agent_claims to authenticated;
+
+revoke all on table public.saved_agents from anon, authenticated;
+grant select, insert, update, delete on table public.saved_agents to authenticated;
+
+revoke all on table public.agent_alerts from anon, authenticated;
+grant select, insert, update, delete on table public.agent_alerts to authenticated;
+
+revoke all on table public.analytics_events from anon, authenticated;
+grant insert on table public.analytics_events to anon;
+grant select, insert on table public.analytics_events to authenticated;
+
+revoke all on table public.account_deletion_requests from anon, authenticated;
+grant select, insert on table public.account_deletion_requests to authenticated;
+
+revoke all on table public.outreach_suppression from anon, authenticated;
+grant select, insert, update, delete on table public.outreach_suppression to authenticated;
 
 drop policy if exists "profile own select" on public.profiles;
 create policy "profile own select"
@@ -257,6 +291,8 @@ drop trigger if exists on_auth_user_created_aun on auth.users;
 create trigger on_auth_user_created_aun
 after insert or update on auth.users
 for each row execute function public.handle_new_aun_user();
+
+revoke all on function public.handle_new_aun_user() from public;
 
 create or replace function public.admin_dashboard_metrics()
 returns jsonb
