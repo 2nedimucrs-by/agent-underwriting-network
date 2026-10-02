@@ -32,6 +32,17 @@ Deno.serve(async (req) => {
     const index = await response.json();
     const agents = Array.isArray(index.agents) ? index.agents : [];
 
+    const { error: cacheError } = await admin
+      .from("public_agent_index_cache")
+      .upsert({
+        cache_key: "latest",
+        payload: index,
+        source_url: PUBLIC_INDEX,
+        observed_at: new Date().toISOString(),
+      }, { onConflict: "cache_key" });
+
+    if (cacheError) throw cacheError;
+
     const { data: snapshotRows, error: snapshotError } = await admin
       .from("agent_version_snapshots")
       .select("agent_id,version_hash,observed_at")
@@ -173,6 +184,7 @@ Deno.serve(async (req) => {
       new_snapshots: snapshotInserts.length,
       version_drifts: changed.length,
       notifications_created: notificationsCreated,
+      cache_updated: true,
     }, 200);
   } catch (error) {
     return json({ error: String(error) }, 500);
