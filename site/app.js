@@ -135,6 +135,7 @@ function render() {
           return;
         }
         state.selected.add(slug);
+        if (window.AUNAnalytics) window.AUNAnalytics.track('COMPARE_ADD', { agent_id: 'github:' + slug.replace('-', '/') });
       } else {
         state.selected.delete(slug);
       }
@@ -186,9 +187,16 @@ fetch('./data/agents.json')
     render();
   });
 
+let searchTimer;
 search.addEventListener('input', () => {
   state.query = search.value.trim();
   render();
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    if (state.query.length >= 2 && window.AUNAnalytics) {
+      window.AUNAnalytics.track('SEARCH', { query_length: state.query.length });
+    }
+  }, 700);
 });
 
 category.addEventListener('change', () => {
@@ -210,5 +218,6 @@ compareNow.addEventListener('click', () => {
   if (state.selected.size < 2) return;
   const params = new URLSearchParams();
   params.set('agents', [...state.selected].join(','));
+  if (window.AUNAnalytics) window.AUNAnalytics.track('COMPARE_RUN', { count: state.selected.size });
   window.location.href = './compare.html?' + params.toString();
 });
