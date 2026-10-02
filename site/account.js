@@ -28,7 +28,11 @@
   );
 
   const params = new URLSearchParams(location.search);
-  const claimId = params.get('claim');
+  const incomingClaimId = params.get('claim');
+  if (incomingClaimId) {
+    sessionStorage.setItem('aun_pending_claim', incomingClaimId);
+  }
+  const claimId = incomingClaimId || sessionStorage.getItem('aun_pending_claim');
 
   function githubLoginFromUser(user) {
     return user?.user_metadata?.user_name ||
@@ -58,7 +62,7 @@
   }
 
   githubLogin.addEventListener('click', async () => {
-    const redirectTo = location.origin + location.pathname + location.search;
+    const redirectTo = location.origin + location.pathname;
     const { error } = await client.auth.signInWithOAuth({
       provider: 'github',
       options: { redirectTo }
@@ -70,7 +74,7 @@
     event.preventDefault();
     magicStatus.textContent = 'Sending…';
     const email = document.querySelector('#email').value.trim();
-    const redirectTo = location.origin + location.pathname + location.search;
+    const redirectTo = location.origin + location.pathname;
     const { error } = await client.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: redirectTo }
@@ -135,6 +139,7 @@
     if (verification.data?.status === 'VERIFIED_MAINTAINER') {
       claimStatus.textContent =
         'Maintainer identity verified. This does not verify the agent security or capability.';
+      sessionStorage.removeItem('aun_pending_claim');
       if (window.AUNAnalytics) {
         window.AUNAnalytics.track('CLAIM_COMPLETE', { agent_id: claimId });
       }
