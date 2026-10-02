@@ -407,6 +407,7 @@ def _write_sitemap(cards: list[AgentCard]) -> None:
     urls = [
         f"{PUBLIC_BASE}/",
         f"{PUBLIC_BASE}/compare.html",
+        f"{PUBLIC_BASE}/underwrite.html",
         f"{PUBLIC_BASE}/account.html",
         f"{PUBLIC_BASE}/privacy.html",
         f"{PUBLIC_BASE}/terms.html",
