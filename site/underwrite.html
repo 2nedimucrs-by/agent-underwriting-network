@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task Underwriting · Agent Underwriting Network</title>
+  <meta name="description" content="Evaluate whether current evidence is sufficient to give a version-pinned AI agent a specific task.">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./runtime-config.js"></script>
+</head>
+<body>
+  <header class="shell header">
+    <a class="brand" href="./">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav">
+      <a href="./#index">Index</a>
+      <a href="./compare.html">Compare</a>
+      <a href="./underwrite.html">Underwrite</a>
+      <a href="./account.html">Account</a>
+    </nav>
+    <span class="phase">TASK FITNESS</span>
+  </header>
+
+  <main class="shell compare-page">
+    <p class="eyebrow">CAN I GIVE THIS AGENT THIS JOB?</p>
+    <h1 class="profile-title">Task underwriting simulator.</h1>
+    <p class="lede">Choose an exact public agent profile, a task and operational limits. The simulator fails closed when required VERIFIED evidence is missing.</p>
+
+    <section class="underwrite-form panel">
+      <label>
+        <span>Agent</span>
+        <select id="uw-agent" class="select"></select>
+      </label>
+
+      <label>
+        <span>Task type</span>
+        <select id="uw-task" class="select">
+          <option value="browser_read">Browser read</option>
+          <option value="repository_read">Repository read</option>
+          <option value="structured_extraction">Structured extraction</option>
+          <option value="mcp_tool_invocation">MCP tool invocation</option>
+          <option value="code_change">Code change</option>
+          <option value="crm_write">CRM write</option>
+        </select>
+      </label>
+
+      <label class="uw-check">
+        <input id="uw-write" type="checkbox">
+        <span>Request write access</span>
+      </label>
+
+      <label>
+        <span>Maximum spend (USD)</span>
+        <input id="uw-spend" class="search" type="number" min="0" step="0.01" value="0">
+      </label>
+
+      <button id="uw-run" class="button" type="button">Evaluate task fitness</button>
+    </section>
+
+    <section id="uw-result" class="section-block" hidden>
+      <div class="decision-hero panel">
+        <div>
+          <p class="panel-label">DECISION</p>
+          <strong id="uw-decision" class="decision-value">—</strong>
+        </div>
+        <div>
+          <p class="panel-label">VERSION</p>
+          <code id="uw-version" class="commit">—</code>
+        </div>
+      </div>
+
+      <div class="account-grid section-block compact-block">
+        <article class="panel">
+          <p class="panel-label">REASONS</p>
+          <ul id="uw-reasons" class="reason-list"></ul>
+        </article>
+
+        <article class="panel">
+          <p class="panel-label">ENFORCED LIMITS</p>
+          <div id="uw-limits" class="workspace-list"></div>
+        </article>
+      </div>
+
+      <section class="section-block compact-block">
+        <div class="section-title">
+          <div><p class="eyebrow">REQUIRED EVIDENCE</p><h2>Policy dimensions</h2></div>
+          <a id="uw-card-link" href="#">Open Trust Card</a>
+        </div>
+        <div id="uw-dimensions" class="dimension-grid"></div>
+      </section>
+
+      <p class="notice">This public simulator evaluates the current Trust Card only. It does not create new evidence or grant production permission.</p>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <div><strong>Fail closed by default</strong><span>Popularity, maintainer identity and scanner absence are not substitutes for task evidence.</span></div>
+  </footer>
+
+  <script src="./analytics.js"></script>
+  <script src="./underwrite.js" defer></script>
+</body>
+</html>
