@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentCard",
+  "type": "object",
+  "required": ["schema_version", "agent_id", "source", "version", "status", "evidence_dimensions"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "agent_id": {"type": "string", "minLength": 3},
+    "source": {
+      "type": "object",
+      "required": ["kind", "url"],
+      "properties": {
+        "kind": {"enum": ["github", "mcp", "a2a", "manual"]},
+        "url": {"type": "string"}
+      }
+    },
+    "version": {
+      "type": "object",
+      "required": ["identifier"],
+      "properties": {
+        "identifier": {"type": "string"},
+        "commit_sha": {"type": ["string", "null"]},
+        "observed_at": {"type": "string"}
+      }
+    },
+    "status": {"enum": ["DISCOVERED_NOT_VERIFIED", "EVIDENCE_PARTIAL", "VERIFIED_FOR_TASK", "REVIEW_REQUIRED", "BLOCKED"]},
+    "evidence_dimensions": {"type": "object"}
+  },
+  "additionalProperties": true
+}
