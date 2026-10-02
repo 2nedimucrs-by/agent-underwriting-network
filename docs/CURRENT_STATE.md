@@ -1,6 +1,6 @@
 # Current state
 
-Status: FOUNDATION_BOOTSTRAPPED
+Status: FOUNDATION_BOOTSTRAPPED_PAGES_LIVE
 
 ## Implemented
 
@@ -13,14 +13,27 @@ Status: FOUNDATION_BOOTSTRAPPED
 - static public index
 - GitHub Actions CI
 - scheduled GitHub Pages build/deploy workflow
+- live GitHub Pages deployment
 - product invariants
 - Chief + 10 specialist operating model
 - growth/outreach policy
 - business-model hypothesis
 
+## Verified runtime evidence
+
+- CI run 37049565904: SUCCESS
+- Pages workflow run 37049565699 attempt 2: build SUCCESS
+- Configure Pages: SUCCESS
+- Pages artifact upload: SUCCESS
+- deploy job: SUCCESS
+
+Expected public URL:
+
+https://2nedimucrs-by.github.io/agent-underwriting-network/
+
 ## Not yet proven
 
-- live Pages deployment
+- first 100 discovery profiles
 - MCP Registry discovery
 - A2A Agent Card discovery
 - dependency scanner evidence
