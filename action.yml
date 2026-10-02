@@ -1,0 +1,19 @@
+name: Agent Underwriting Evidence Snapshot
+description: Create a version-pinned, non-verifying evidence snapshot from bounded repository manifests.
+inputs:
+  repository-root:
+    description: Repository root to inspect
+    required: false
+    default: .
+outputs:
+  evidence-path:
+    description: Path to the generated evidence snapshot
+    value: ${{ steps.collect.outputs.evidence_path }}
+runs:
+  using: composite
+  steps:
+    - id: collect
+      shell: bash
+      env:
+        AUN_REPOSITORY_ROOT: ${{ inputs.repository-root }}
+      run: python "${{ github.action_path }}/scripts/maintainer_evidence.py"
