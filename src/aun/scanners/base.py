@@ -34,3 +34,15 @@ def aggregate_findings(
     for finding in findings:
         grouped.setdefault(finding.check_id, []).append(finding)
     return grouped
+
+
+class DependencyScannerAdapter(Protocol):
+    scanner_id: str
+    scanner_version: str
+
+    def scan(
+        self,
+        dependencies: list[object],
+        artifact_hash: str | None,
+    ) -> object:
+        ...
