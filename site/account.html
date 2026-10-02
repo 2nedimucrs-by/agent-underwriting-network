@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account · Agent Underwriting Network</title>
+  <meta name="description" content="Sign in, claim an agent profile and manage your Agent Underwriting Network account.">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./runtime-config.js"></script>
+</head>
+<body>
+  <header class="shell header">
+    <a class="brand" href="./">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav">
+      <a href="./#index">Index</a>
+      <a href="./compare.html">Compare</a>
+      <a href="./privacy.html">Privacy</a>
+    </nav>
+    <span class="phase">ACCOUNT</span>
+  </header>
+
+  <main class="shell account-main">
+    <section class="account-intro">
+      <p class="eyebrow">IDENTITY WITHOUT LOCK-IN</p>
+      <h1 class="profile-title">Your evidence workspace.</h1>
+      <p class="lede">Browse anonymously. Sign in only when you want to claim a maintainer profile, save agents or create alerts.</p>
+    </section>
+
+    <div id="auth-disabled" class="panel callout" hidden>
+      <strong>Account backend is not configured yet.</strong>
+      <span>The public evidence index remains fully available. Auth activates automatically after Supabase and GitHub OAuth are configured.</span>
+    </div>
+
+    <section id="signed-out" class="account-grid">
+      <article class="panel">
+        <p class="panel-label">GITHUB</p>
+        <h2>Continue with GitHub</h2>
+        <p>Recommended for maintainers who want to claim a repository profile. We never receive your GitHub password.</p>
+        <button id="github-login" class="button" type="button">Continue with GitHub</button>
+      </article>
+
+      <article class="panel">
+        <p class="panel-label">EMAIL MAGIC LINK</p>
+        <h2>Continue with email</h2>
+        <p>No password to remember. We send a one-time sign-in link.</p>
+        <form id="magic-form">
+          <label class="field-label" for="email">Email</label>
+          <input class="search" id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          <button class="button" type="submit">Send secure sign-in link</button>
+        </form>
+        <p id="magic-status" class="form-status"></p>
+      </article>
+    </section>
+
+    <section id="signed-in" hidden>
+      <div class="account-grid">
+        <article class="panel">
+          <p class="panel-label">SIGNED IN</p>
+          <h2 id="user-name">Account</h2>
+          <p id="user-email"></p>
+          <div class="inline-actions">
+            <button id="sign-out" class="button secondary" type="button">Sign out</button>
+            <a class="button secondary" href="./privacy.html">Privacy & data</a>
+          </div>
+        </article>
+
+        <article id="claim-panel" class="panel" hidden>
+          <p class="panel-label">MAINTAINER CLAIM</p>
+          <h2>Claim this profile</h2>
+          <p id="claim-agent"></p>
+          <p class="notice">Claiming identity does not verify the agent's security or capability. It only starts maintainer ownership verification.</p>
+          <button id="submit-claim" class="button" type="button">Submit claim request</button>
+          <p id="claim-status" class="form-status"></p>
+        </article>
+      </div>
+
+      <section class="section-block">
+        <div class="section-title">
+          <div><p class="eyebrow">YOUR DATA</p><h2>Account controls</h2></div>
+        </div>
+        <article class="panel">
+          <p>Request deletion of your stored account profile, claims, saved agents, alerts and associated product data. Auth identity deletion is completed server-side after verification.</p>
+          <button id="delete-request" class="text-button danger-link" type="button">Request account deletion</button>
+          <p id="delete-status" class="form-status"></p>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <div><strong>Agent Underwriting Network</strong><span>Anonymous browsing remains available.</span></div>
+    <div><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./analytics.js"></script>
+  <script src="./account.js" defer></script>
+</body>
+</html>
