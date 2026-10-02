@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Underwriting Network</title>
+  <meta name="description" content="Independent, version-pinned evidence for AI agents.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="shell header">
+    <a class="brand" href="./">Agent Underwriting Network</a>
+    <span class="phase">PUBLIC ALPHA</span>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">INDEPENDENT AGENT EVIDENCE</p>
+      <h1>Before you trust an AI agent with real work, inspect the evidence.</h1>
+      <p class="lede">Version-pinned identity, provenance, permissions, security, capability, reliability and economics — without collapsing everything into a misleading single trust score.</p>
+      <label class="search-label" for="search">Search discovered agents</label>
+      <input id="search" class="search" type="search" placeholder="browser-use, OpenHands, MCP..." autocomplete="off">
+      <p class="notice">Discovery is not verification. Every profile states exactly what has and has not been tested.</p>
+    </section>
+
+    <section class="stats" aria-label="Index summary">
+      <div><strong id="count">0</strong><span>discovered profiles</span></div>
+      <div><strong>0</strong><span>paid placements</span></div>
+      <div><strong>Evidence</strong><span>before ratings</span></div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <h2>Agent index</h2>
+        <span id="updated">Not generated yet</span>
+      </div>
+      <div id="agents" class="grid"></div>
+      <p id="empty" class="empty">No profiles are published yet. The scheduled discovery job will populate the index.</p>
+    </section>
+  </main>
+
+  <footer class="shell footer">Open evidence infrastructure · Apache-2.0 · No warranty or deployment guarantee.</footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>
