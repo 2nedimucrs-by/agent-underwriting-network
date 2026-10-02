@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Command Center · Agent Underwriting Network</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./runtime-config.js"></script>
+</head>
+<body>
+  <header class="shell header">
+    <a class="brand" href="./">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav"><a href="./">Public site</a><a href="./account.html">Account</a></nav>
+    <span class="phase">COMMAND CENTER</span>
+  </header>
+
+  <main class="shell admin-main">
+    <section>
+      <p class="eyebrow">FOUNDER OPERATIONS</p>
+      <h1 class="profile-title">Command Center</h1>
+      <p class="lede">Live product events, registrations, claims and high-interest agent profiles. Access is enforced by the backend admin role.</p>
+    </section>
+
+    <div id="admin-status" class="panel callout">Connecting…</div>
+
+    <section id="admin-dashboard" hidden>
+      <div class="metric-grid">
+        <article><strong id="m-live">0</strong><span>live sessions · 5 min</span></article>
+        <article><strong id="m-views">0</strong><span>page views today</span></article>
+        <article><strong id="m-users">0</strong><span>registered users</span></article>
+        <article><strong id="m-signups">0</strong><span>signups today</span></article>
+        <article><strong id="m-claims">0</strong><span>claim starts today</span></article>
+        <article><strong id="m-verified">0</strong><span>verified maintainers</span></article>
+        <article><strong id="m-compares">0</strong><span>comparisons today</span></article>
+        <article><strong id="m-events">0</strong><span>events today</span></article>
+      </div>
+
+      <section class="section-block">
+        <div class="section-title">
+          <div><p class="eyebrow">LAST 24 HOURS</p><h2>Top agent activity</h2></div>
+          <button id="refresh-admin" class="button secondary" type="button">Refresh</button>
+        </div>
+        <div id="top-agents" class="admin-list"></div>
+      </section>
+
+      <section class="section-block">
+        <div class="section-title">
+          <div><p class="eyebrow">INTEGRATIONS</p><h2>Telemetry status</h2></div>
+        </div>
+        <div class="account-grid">
+          <article class="panel"><strong>Product analytics</strong><span id="product-analytics-state">unknown</span></article>
+          <article class="panel"><strong>Cloudflare Web Analytics</strong><span id="cloudflare-state">unknown</span></article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="shell footer"><div><strong>Private operations surface</strong><span>Raw analytics events are not public.</span></div></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./admin.js" defer></script>
+</body>
+</html>
