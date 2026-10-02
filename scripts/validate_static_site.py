@@ -10,6 +10,8 @@ required = [
     SITE / "app.js",
     SITE / "compare.html",
     SITE / "compare.js",
+    SITE / "underwrite.html",
+    SITE / "underwrite.js",
     SITE / "account.html",
     SITE / "account.js",
     SITE / "admin.html",
