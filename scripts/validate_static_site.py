@@ -10,6 +10,14 @@ required = [
     SITE / "app.js",
     SITE / "compare.html",
     SITE / "compare.js",
+    SITE / "account.html",
+    SITE / "account.js",
+    SITE / "admin.html",
+    SITE / "admin.js",
+    SITE / "privacy.html",
+    SITE / "terms.html",
+    SITE / "runtime-config.js",
+    SITE / "analytics.js",
     SITE / "data" / "agents.json",
 ]
 
