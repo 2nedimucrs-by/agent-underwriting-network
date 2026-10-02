@@ -54,4 +54,45 @@ if agents:
         if not (SITE / extra).exists():
             raise SystemExit(f"missing generated SEO surface: {extra}")
 
+    targets_path = ROOT / "config" / "evidence_targets.json"
+    targets = json.loads(targets_path.read_text(encoding="utf-8"))
+    manifest_targets = {
+        value.lower()
+        for value in targets.get("manifest_targets", [])
+    }
+
+    enriched = [
+        agent
+        for agent in agents
+        if str(agent.get("metadata", {}).get("repository", "")).lower()
+        in manifest_targets
+        and agent.get("metadata", {}).get("evidence_enrichment")
+    ]
+
+    minimum_enriched = min(4, len(manifest_targets))
+    if len(enriched) < minimum_enriched:
+        raise SystemExit(
+            "bounded evidence enrichment below minimum: "
+            f"{len(enriched)} < {minimum_enriched}"
+        )
+
+    scanner_profiles = [
+        agent
+        for agent in enriched
+        if (
+            agent.get("metadata", {})
+            .get("evidence_enrichment", {})
+            .get("security_scanners")
+        )
+    ]
+    if not scanner_profiles:
+        raise SystemExit(
+            "security scanner adapters produced no recorded run metadata"
+        )
+
+    print(
+        "evidence surface: PASS "
+        f"(enriched={len(enriched)} scanner_profiles={len(scanner_profiles)})"
+    )
+
 print(f"static site integrity: PASS ({len(agents)} generated profiles)")
