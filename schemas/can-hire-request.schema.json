@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CanHireRequest",
+  "type": "object",
+  "required": ["agent_id", "task_type"],
+  "properties": {
+    "agent_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "task_type": {
+      "type": "string",
+      "minLength": 2
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "write_access": {"type": "boolean"},
+        "max_spend_usd": {"type": "number", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
