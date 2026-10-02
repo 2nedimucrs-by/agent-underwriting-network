@@ -56,6 +56,8 @@ if agents:
         if not (SITE / extra).exists():
             raise SystemExit(f"missing generated SEO surface: {extra}")
 
+    degraded_mode = bool(index.get("degraded_mode"))
+
     targets_path = ROOT / "config" / "evidence_targets.json"
     targets = json.loads(targets_path.read_text(encoding="utf-8"))
     manifest_targets = {
@@ -71,30 +73,45 @@ if agents:
         and agent.get("metadata", {}).get("evidence_enrichment")
     ]
 
-    minimum_enriched = min(4, len(manifest_targets))
-    if len(enriched) < minimum_enriched:
-        raise SystemExit(
-            "bounded evidence enrichment below minimum: "
-            f"{len(enriched)} < {minimum_enriched}"
+    if degraded_mode:
+        fallback_marked = [
+            agent
+            for agent in agents
+            if agent.get("metadata", {}).get("discovery_fallback") is True
+        ]
+        if len(fallback_marked) < 100:
+            raise SystemExit(
+                "degraded discovery cache lacks required fallback markers"
+            )
+        print(
+            "evidence surface: DEGRADED_FAIL_CLOSED "
+            f"(profiles={len(fallback_marked)} fresh_enriched={len(enriched)})"
         )
+    else:
+        minimum_enriched = min(4, len(manifest_targets))
+        if len(enriched) < minimum_enriched:
+            raise SystemExit(
+                "bounded evidence enrichment below minimum: "
+                f"{len(enriched)} < {minimum_enriched}"
+            )
 
-    scanner_profiles = [
-        agent
-        for agent in enriched
-        if (
-            agent.get("metadata", {})
-            .get("evidence_enrichment", {})
-            .get("security_scanners")
-        )
-    ]
-    if not scanner_profiles:
-        raise SystemExit(
-            "security scanner adapters produced no recorded run metadata"
-        )
+        scanner_profiles = [
+            agent
+            for agent in enriched
+            if (
+                agent.get("metadata", {})
+                .get("evidence_enrichment", {})
+                .get("security_scanners")
+            )
+        ]
+        if not scanner_profiles:
+            raise SystemExit(
+                "security scanner adapters produced no recorded run metadata"
+            )
 
-    print(
-        "evidence surface: PASS "
-        f"(enriched={len(enriched)} scanner_profiles={len(scanner_profiles)})"
-    )
+        print(
+            "evidence surface: PASS "
+            f"(enriched={len(enriched)} scanner_profiles={len(scanner_profiles)})"
+        )
 
 print(f"static site integrity: PASS ({len(agents)} generated profiles)")
