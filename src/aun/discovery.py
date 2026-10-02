@@ -344,6 +344,7 @@ def _profile_html(card: AgentCard, evidence: list[dict[str, Any]]) -> str:
 
     <section class="profile-actions">
       <a class="button" href="../../compare.html?agents={slug}">Compare this project</a>
+      <a class="button secondary" href="../../account.html?watch={claim_param}">Save & watch</a>
       <a class="button secondary" href="../../account.html?claim={claim_param}">Claim this profile</a>
       <a class="button secondary" href="{source}" target="_blank" rel="noreferrer">Open source repository</a>
     </section>
