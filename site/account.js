@@ -18,9 +18,17 @@
 
   if (!config.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
     disabled.hidden = false;
+    disabled.style.display = '';
+    signedOut.hidden = false;
+    signedOut.style.display = '';
+    signedIn.hidden = true;
+    signedIn.style.display = 'none';
     signedOut.querySelectorAll('button,input').forEach(el => el.disabled = true);
     return;
   }
+
+  disabled.hidden = true;
+  disabled.style.display = 'none';
 
   const client = window.supabase.createClient(
     config.supabaseUrl,
@@ -43,15 +51,22 @@
   async function render(session) {
     const user = session?.user || null;
     signedOut.hidden = Boolean(user);
+    signedOut.style.display = user ? 'none' : '';
     signedIn.hidden = !user;
+    signedIn.style.display = user ? '' : 'none';
 
-    if (!user) return;
+    if (!user) {
+      claimPanel.hidden = true;
+      claimPanel.style.display = 'none';
+      return;
+    }
 
     userName.textContent = githubLoginFromUser(user) || 'Signed-in user';
     userEmail.textContent = user.email || 'No email exposed by provider';
 
     if (claimId) {
       claimPanel.hidden = false;
+      claimPanel.style.display = '';
       claimAgent.textContent = claimId;
     }
   }
