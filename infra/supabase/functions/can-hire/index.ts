@@ -58,6 +58,10 @@ Deno.serve(async (req) => {
       "SUPABASE_PUBLISHABLE_KEYS",
       "SUPABASE_ANON_KEY",
     );
+    const secretKey = readKeySet(
+      "SUPABASE_SECRET_KEYS",
+      "SUPABASE_SERVICE_ROLE_KEY",
+    );
 
     const client = createClient(supabaseUrl, publishableKey, {
       global: { headers: { Authorization: "Bearer " + jwt } },
@@ -68,10 +72,49 @@ Deno.serve(async (req) => {
       return json({ error: "invalid session" }, 401);
     }
 
+    const service = createClient(supabaseUrl, secretKey);
     const body = await req.json();
     const agentId = String(body.agent_id || "");
     const taskType = String(body.task_type || "");
     const requested = body.limits || {};
+
+    const now = Date.now();
+    const minuteAgo = new Date(now - 60_000).toISOString();
+    const dayAgo = new Date(now - 86_400_000).toISOString();
+
+    const [minuteCount, dayCount] = await Promise.all([
+      service
+        .from("underwriting_rate_events")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userData.user.id)
+        .gte("occurred_at", minuteAgo),
+      service
+        .from("underwriting_rate_events")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userData.user.id)
+        .gte("occurred_at", dayAgo),
+    ]);
+
+    if (minuteCount.error || dayCount.error) {
+      throw minuteCount.error || dayCount.error;
+    }
+
+    if ((minuteCount.count || 0) >= 30 || (dayCount.count || 0) >= 500) {
+      return json({
+        error: "rate limit exceeded",
+        retry_after_seconds: (minuteCount.count || 0) >= 30 ? 60 : 3600,
+      }, 429);
+    }
+
+    const { error: rateInsertError } = await service
+      .from("underwriting_rate_events")
+      .insert({
+        user_id: userData.user.id,
+        agent_id: String(body.agent_id || "") || null,
+        task_type: String(body.task_type || "") || null,
+      });
+
+    if (rateInsertError) throw rateInsertError;
 
     const policy = policies[taskType];
     if (!policy) {
