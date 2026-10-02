@@ -209,11 +209,35 @@ def enrich_card(
     if not commit_sha:
         return EnrichmentResult(card=card, records=())
 
-    acquired = acquire_manifest_files(
-        repository,
-        commit_sha,
-        token=token,
-    )
+    try:
+        acquired = acquire_manifest_files(
+            repository,
+            commit_sha,
+            token=token,
+        )
+    except Exception as exc:
+        error_record = {
+            "schema_version": "1.0.0",
+            "evidence_id": _evidence_id(card, "manifest-acquisition-error"),
+            "agent_id": card.agent_id,
+            "dimension": "provenance",
+            "claim": "Bounded manifest acquisition did not complete.",
+            "result": "NOT_EVALUATED",
+            "source": {
+                "kind": "github-version-pinned-manifests",
+                "locator": card.source["url"],
+            },
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "expires_at": None,
+            "artifact_hash": commit_sha,
+            "environment": {
+                "collector": "aun-bounded-manifest-acquisition-v1",
+                "status": "ERROR",
+                "error": type(exc).__name__,
+            },
+        }
+        return EnrichmentResult(card=card, records=(error_record,))
+
     if not acquired:
         return EnrichmentResult(card=card, records=())
 
