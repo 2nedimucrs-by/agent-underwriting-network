@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const secretKey = readDefaultKey(
+    const secretKey = readKeySet(
       "SUPABASE_SECRET_KEYS",
       "SUPABASE_SERVICE_ROLE_KEY",
     );
@@ -183,19 +183,21 @@ function json(payload: unknown, status: number) {
   });
 }
 
-function readDefaultKey(currentName: string, legacyName: string): string {
+function readKeySet(currentName: string, legacyName: string): string {
   const current = Deno.env.get(currentName);
   if (current) {
     try {
       const parsed = JSON.parse(current);
-      if (typeof parsed?.default === "string") return parsed.default;
+      if (typeof parsed?.default === "string" && parsed.default.trim()) {
+        return parsed.default.trim();
+      }
     } catch (_) {
       if (current.trim()) return current.trim();
     }
   }
 
   const legacy = Deno.env.get(legacyName);
-  if (legacy) return legacy;
+  if (legacy?.trim()) return legacy.trim();
 
   throw new Error("required Supabase API key is unavailable");
 }
