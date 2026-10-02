@@ -56,7 +56,7 @@ if agents:
         if not (SITE / extra).exists():
             raise SystemExit(f"missing generated SEO surface: {extra}")
 
-    degraded_mode = bool(index.get("degraded_mode"))
+    degraded_mode = bool(payload.get("degraded_mode"))
 
     targets_path = ROOT / "config" / "evidence_targets.json"
     targets = json.loads(targets_path.read_text(encoding="utf-8"))
