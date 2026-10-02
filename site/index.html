@@ -3,43 +3,137 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Agent Underwriting Network</title>
-  <meta name="description" content="Independent, version-pinned evidence for AI agents.">
+  <title>Agent Underwriting Network — Evidence before trust</title>
+  <meta name="description" content="Independent, version-pinned evidence and task-fitness signals for AI agents, MCP tools and agent infrastructure.">
+  <meta name="robots" content="index,follow">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="shell header">
-    <a class="brand" href="./">Agent Underwriting Network</a>
+    <a class="brand" href="./">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav">
+      <a href="#index">Index</a>
+      <a href="./compare.html">Compare</a>
+      <a href="#method">Method</a>
+      <a href="https://github.com/2nedimucrs-by/agent-underwriting-network" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
     <span class="phase">PUBLIC ALPHA</span>
   </header>
 
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">INDEPENDENT AGENT EVIDENCE</p>
-      <h1>Before you trust an AI agent with real work, inspect the evidence.</h1>
-      <p class="lede">Version-pinned identity, provenance, permissions, security, capability, reliability and economics — without collapsing everything into a misleading single trust score.</p>
-      <label class="search-label" for="search">Search discovered agents</label>
-      <input id="search" class="search" type="search" placeholder="browser-use, OpenHands, MCP..." autocomplete="off">
-      <p class="notice">Discovery is not verification. Every profile states exactly what has and has not been tested.</p>
-    </section>
-
-    <section class="stats" aria-label="Index summary">
-      <div><strong id="count">0</strong><span>discovered profiles</span></div>
-      <div><strong>0</strong><span>paid placements</span></div>
-      <div><strong>Evidence</strong><span>before ratings</span></div>
-    </section>
-
-    <section>
-      <div class="section-title">
-        <h2>Agent index</h2>
-        <span id="updated">Not generated yet</span>
+  <main>
+    <section class="shell hero hero-strong">
+      <div class="hero-copy">
+        <p class="eyebrow">INDEPENDENT AGENT EVIDENCE NETWORK</p>
+        <h1>Know what an AI agent can be trusted to do <em>before</em> you give it real work.</h1>
+        <p class="lede">Inspect version-pinned identity, provenance, permissions, security, capability, reliability and economics. No pay-to-rank placement. No misleading universal trust score.</p>
+        <div class="hero-actions">
+          <a class="button" href="#index">Explore agent evidence</a>
+          <a class="button secondary" href="./compare.html">Compare agents</a>
+        </div>
+        <p class="notice">Discovery is not verification. Every profile states exactly what was observed, what was tested, and what remains unknown.</p>
       </div>
-      <div id="agents" class="grid"></div>
-      <p id="empty" class="empty">No profiles are published yet. The scheduled discovery job will populate the index.</p>
+      <aside class="hero-proof">
+        <p class="panel-label">UNDERWRITING QUESTION</p>
+        <h2>Can this exact agent version perform this exact task, under these exact permissions and limits?</h2>
+        <div class="proof-flow">
+          <span>IDENTITY</span><i>→</i><span>EVIDENCE</span><i>→</i><span>TASK FIT</span><i>→</i><span>DECISION</span>
+        </div>
+        <p>Today the public alpha begins with version-pinned public-source evidence. Task-specific security and capability verification are added only when reproducible evidence exists.</p>
+      </aside>
+    </section>
+
+    <section class="shell stats stats-strong" aria-label="Index summary">
+      <div><strong id="count">0</strong><span>live profiles</span></div>
+      <div><strong id="category-count">0</strong><span>ecosystem categories</span></div>
+      <div><strong id="version-pinned">0</strong><span>version-pinned heads</span></div>
+      <div><strong>0</strong><span>paid ranking slots</span></div>
+    </section>
+
+    <section class="shell section-block" id="method">
+      <div class="section-title wide-title">
+        <div>
+          <p class="eyebrow">WHAT WE MEASURE</p>
+          <h2>Eight independent evidence dimensions</h2>
+        </div>
+        <p>Safe is not the same as capable. Capable is not the same as authorized. Authorized is not the same as economical.</p>
+      </div>
+      <div class="dimension-explainer">
+        <article><strong>Identity</strong><span>Who publishes the agent?</span></article>
+        <article><strong>Provenance</strong><span>Which exact source and version?</span></article>
+        <article><strong>Security</strong><span>What tested risks were observed?</span></article>
+        <article><strong>Permissions</strong><span>What can it read, write or call?</span></article>
+        <article><strong>Capability</strong><span>Which tasks were actually completed?</span></article>
+        <article><strong>Reliability</strong><span>How consistently does it succeed?</span></article>
+        <article><strong>Economics</strong><span>What does successful work cost?</span></article>
+        <article><strong>Freshness</strong><span>Is the evidence still current?</span></article>
+      </div>
+    </section>
+
+    <section class="shell section-block process-block">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">EVIDENCE PIPELINE</p>
+          <h2>From public artifact to portable Trust Card</h2>
+        </div>
+      </div>
+      <div class="process">
+        <article><b>01</b><strong>Discover</strong><span>Find public agent and tool projects.</span></article>
+        <article><b>02</b><strong>Pin</strong><span>Bind evidence to an exact repository head/version.</span></article>
+        <article><b>03</b><strong>Observe</strong><span>Capture traceable public-source evidence.</span></article>
+        <article><b>04</b><strong>Test</strong><span>Add security and capability evidence only from reproducible tests.</span></article>
+        <article><b>05</b><strong>Underwrite</strong><span>Decide task fitness against explicit policy.</span></article>
+      </div>
+    </section>
+
+    <section class="shell section-block" id="index">
+      <div class="section-title directory-title">
+        <div>
+          <p class="eyebrow">PUBLIC DIRECTORY</p>
+          <h2>Agent evidence index</h2>
+        </div>
+        <span id="updated">Loading index…</span>
+      </div>
+
+      <div class="directory-toolbar">
+        <label>
+          <span>Search</span>
+          <input id="search" class="search" type="search" placeholder="Browser Use, OpenHands, MCP, voice, security…" autocomplete="off">
+        </label>
+        <label>
+          <span>Category</span>
+          <select id="category" class="select">
+            <option value="">All categories</option>
+          </select>
+        </label>
+        <label>
+          <span>Sort</span>
+          <select id="sort" class="select">
+            <option value="stars">GitHub stars</option>
+            <option value="name">Name</option>
+            <option value="fresh">Recently pushed</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="agents" class="grid agent-grid"></div>
+      <p id="empty" class="empty">No profiles match your filters.</p>
+      <div id="failures" class="index-health" hidden></div>
     </section>
   </main>
 
-  <footer class="shell footer">Open evidence infrastructure · Apache-2.0 · No warranty or deployment guarantee.</footer>
+  <div id="compare-bar" class="compare-bar" hidden>
+    <div><strong id="compare-count">0</strong> selected <span>Choose up to 4 projects.</span></div>
+    <div>
+      <button id="clear-compare" class="text-button" type="button">Clear</button>
+      <button id="compare-now" class="button" type="button">Compare selected</button>
+    </div>
+  </div>
+
+  <footer class="shell footer">
+    <div><strong>Agent Underwriting Network</strong><span>Independent evidence infrastructure for the agent economy.</span></div>
+    <div><a href="https://github.com/2nedimucrs-by/agent-underwriting-network" target="_blank" rel="noreferrer">Source</a><span>Apache-2.0 · Evidence is version-specific · No warranty.</span></div>
+  </footer>
+
   <script src="./app.js" defer></script>
 </body>
 </html>
