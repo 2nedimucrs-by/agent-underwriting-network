@@ -14,13 +14,19 @@ Deno.serve(async (req) => {
     if (!jwt) return json({ error: "missing authorization" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const publishableKey = readKeySet(
+      "SUPABASE_PUBLISHABLE_KEYS",
+      "SUPABASE_ANON_KEY",
+    );
+    const secretKey = readKeySet(
+      "SUPABASE_SECRET_KEYS",
+      "SUPABASE_SERVICE_ROLE_KEY",
+    );
 
-    const userClient = createClient(supabaseUrl, anonKey, {
+    const userClient = createClient(supabaseUrl, publishableKey, {
       global: { headers: { Authorization: "Bearer " + jwt } },
     });
-    const admin = createClient(supabaseUrl, serviceRole);
+    const admin = createClient(supabaseUrl, secretKey);
 
     const { data, error } = await userClient.auth.getUser();
     if (error || !data.user) return json({ error: "invalid session" }, 401);
