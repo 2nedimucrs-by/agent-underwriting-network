@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EvidenceRecord",
+  "type": "object",
+  "required": ["schema_version", "evidence_id", "agent_id", "dimension", "claim", "source", "observed_at"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "evidence_id": {"type": "string"},
+    "agent_id": {"type": "string"},
+    "dimension": {"enum": ["identity", "provenance", "security", "permissions", "capability", "reliability", "economics", "freshness"]},
+    "claim": {"type": "string"},
+    "source": {"type": "object"},
+    "observed_at": {"type": "string"},
+    "expires_at": {"type": ["string", "null"]},
+    "artifact_hash": {"type": ["string", "null"]},
+    "environment": {"type": "object"}
+  },
+  "additionalProperties": false
+}
