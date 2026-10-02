@@ -138,3 +138,29 @@ def scan_dependencies(
         scanned_dependencies=scanned,
         skipped_dependencies=skipped,
     )
+
+
+class GitHubAdvisoryDependencyScanner:
+    scanner_id = "github-global-advisories"
+    scanner_version = "rest-2022-11-28"
+
+    def __init__(
+        self,
+        *,
+        token: str | None,
+        max_dependencies: int = 15,
+    ):
+        self.token = token
+        self.max_dependencies = max(1, min(int(max_dependencies), 25))
+
+    def scan(
+        self,
+        dependencies: list[DependencySignal],
+        artifact_hash: str | None,
+    ) -> ScannerRun:
+        return scan_dependencies(
+            dependencies,
+            artifact_hash=artifact_hash,
+            token=self.token,
+            max_dependencies=self.max_dependencies,
+        )
