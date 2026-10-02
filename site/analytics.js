@@ -27,7 +27,7 @@
   async function send(eventType, metadata = {}) {
     if (!config.productAnalyticsEnabled) return false;
     if (localStorage.getItem(CONSENT_KEY) !== 'accepted') return false;
-    if (!config.supabaseUrl || !config.supabaseAnonKey) return false;
+    if (!config.supabaseUrl || !config.supabasePublishableKey) return false;
 
     const payload = {
       session_id: sessionId(),
@@ -47,8 +47,8 @@
         {
           method: 'POST',
           headers: {
-            apikey: config.supabaseAnonKey,
-            Authorization: 'Bearer ' + config.supabaseAnonKey,
+            apikey: config.supabasePublishableKey,
+            Authorization: 'Bearer ' + config.supabasePublishableKey,
             'Content-Type': 'application/json',
             Prefer: 'return=minimal'
           },
