@@ -20,6 +20,7 @@
   const workspaceStatus = document.querySelector('#workspace-status');
   const claimList = document.querySelector('#claim-list');
   const adminLink = document.querySelector('#admin-link');
+  const notifications = document.querySelector('#notifications');
 
   if (!config.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
     disabled.hidden = false;
@@ -171,6 +172,13 @@
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
+    const noticeResult = await client
+      .from('user_notifications')
+      .select('id,event_type,agent_id,title,body,read_at,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
     if (saved.error || alerts.error || claims.error) {
       workspaceStatus.textContent =
         saved.error?.message ||
@@ -183,6 +191,7 @@
     const savedRows = saved.data || [];
     const alertRows = alerts.data || [];
     const claimRows = claims.data || [];
+    const noticeRows = noticeResult.error ? [] : (noticeResult.data || []);
 
     savedAgents.innerHTML = savedRows.length
       ? savedRows.map(row =>
@@ -217,10 +226,27 @@
         ).join('')
       : '<p class="empty">No maintainer claims yet.</p>';
 
+    notifications.innerHTML = noticeResult.error
+      ? '<p class="empty">Notification backend is not activated yet.</p>'
+      : noticeRows.length
+        ? noticeRows.map(row =>
+            '<div class="notification-row ' + (row.read_at ? 'is-read' : '') + '">' +
+              '<div><strong>' + escapeHtml(row.title) + '</strong>' +
+              '<span>' + escapeHtml(row.body) + '</span></div>' +
+              (row.read_at
+                ? '<span class="notification-state">Read</span>'
+                : '<button class="text-button" data-notice-read="' +
+                    escapeHtml(row.id) + '" type="button">Mark read</button>') +
+            '</div>'
+          ).join('')
+        : '<p class="empty">No notifications yet.</p>';
+
     workspaceStatus.textContent =
       savedRows.length + ' saved · ' +
       alertRows.filter(row => row.enabled).length + ' active alerts · ' +
-      claimRows.length + ' claims';
+      claimRows.length + ' claims' +
+      (noticeResult.error ? '' : ' · ' +
+        noticeRows.filter(row => !row.read_at).length + ' unread');
 
     document.querySelectorAll('[data-unsave]').forEach(button => {
       button.addEventListener('click', async () => {
@@ -242,6 +268,17 @@
           .update({ enabled: !enabled })
           .eq('user_id', user.id)
           .eq('id', button.dataset.alertId);
+        await loadWorkspace(user);
+      });
+    });
+
+    document.querySelectorAll('[data-notice-read]').forEach(button => {
+      button.addEventListener('click', async () => {
+        await client
+          .from('user_notifications')
+          .update({ read_at: new Date().toISOString() })
+          .eq('user_id', user.id)
+          .eq('id', button.dataset.noticeRead);
         await loadWorkspace(user);
       });
     });
