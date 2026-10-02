@@ -1,23 +1,38 @@
 # Supabase deployment
 
-This directory contains the optional user/account backend for the public GitHub Pages product.
+Supabase provides the optional authenticated product backend for the public GitHub Pages evidence network.
 
-## Apply database schema
+## Migration order
 
-Run `migrations/001_initial.sql` inside a dedicated Supabase project.
+Apply these SQL files in order:
 
-## Deploy Edge Functions
+1. `migrations/001_initial.sql` — profiles, claims, saved agents, alerts, analytics, RLS, admin RPCs.
+2. `migrations/002_admin_bootstrap.example.sql` — one-time founder admin bootstrap after first sign-in. Replace the placeholder locally before running; never commit a real personal email to the public repository.
+3. `migrations/003_version_watch.sql` — version history, drift events and in-app notification queue.
+
+## Edge Functions
+
+Deploy:
 
 - `verify-github-claim`
 - `delete-account`
+- `can-hire`
+- `version-watch`
 
-Required server-side function secrets:
+### Runtime keys
 
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+Browser-safe site configuration uses the Supabase publishable key.
 
-Never expose the service-role key to GitHub Pages.
+Edge Functions use Supabase-hosted runtime secrets. Current hosted projects may expose the newer publishable/secret key dictionaries; the functions keep a compatibility fallback for legacy `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` values.
+
+Never expose:
+
+- secret/service-role key
+- database password
+- GitHub OAuth client secret
+- version-watch cron token
+
+to GitHub Pages or public JavaScript.
 
 ## Claim verification scope
 
@@ -27,7 +42,21 @@ The first automatic proof intentionally supports only the safest simple case:
 
 Organization repositories and collaborator/maintainer roles remain PENDING until a stronger GitHub App/permission proof or explicit admin review is added.
 
-This avoids falsely labeling an organization member as a repository maintainer.
+Maintainer identity verification is separate from security, capability and reliability evidence.
+
+## Underwriting API
+
+`can-hire` requires an authenticated Supabase user session.
+
+It fetches the current public Trust Card and applies fail-closed task policy. Public EVIDENCE_PARTIAL data normally yields `INSUFFICIENT_EVIDENCE` rather than an allow decision.
+
+API-key authentication, organization policy overrides and metering are later hardening work.
+
+## Version watch
+
+`version-watch` requires an `AUN_CRON_TOKEN` secret and is called by the guarded GitHub Actions workflow.
+
+It creates in-app notifications only. No external email is sent automatically.
 
 ## Account deletion
 
