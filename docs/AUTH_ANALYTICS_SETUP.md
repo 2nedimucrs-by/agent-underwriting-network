@@ -20,7 +20,7 @@ Add the GitHub Pages site URL and the Supabase callback URL to the relevant redi
 Repository variables expected by the Pages workflow:
 
 - `AUN_SUPABASE_URL`
-- `AUN_SUPABASE_ANON_KEY`
+- `AUN_SUPABASE_PUBLISHABLE_KEY`
 
 These values are rendered into the public static runtime config. The Supabase publishable/anon key is intentionally client-side; all authorization is enforced by Row Level Security.
 
