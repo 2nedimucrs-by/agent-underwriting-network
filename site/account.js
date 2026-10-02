@@ -18,6 +18,8 @@
   const savedAgents = document.querySelector('#saved-agents');
   const agentAlerts = document.querySelector('#agent-alerts');
   const workspaceStatus = document.querySelector('#workspace-status');
+  const claimList = document.querySelector('#claim-list');
+  const adminLink = document.querySelector('#admin-link');
 
   if (!config.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
     disabled.hidden = false;
@@ -80,6 +82,19 @@
 
     await applyPendingWatch(user);
     await loadWorkspace(user);
+    await loadAdminState(user);
+  }
+
+  async function loadAdminState(user) {
+    const result = await client
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    const isAdmin = !result.error && (result.data || []).length > 0;
+    adminLink.hidden = !isAdmin;
+    adminLink.style.display = isAdmin ? '' : 'none';
   }
 
   async function applyPendingWatch(user) {
@@ -150,14 +165,24 @@
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (saved.error || alerts.error) {
+    const claims = await client
+      .from('agent_claims')
+      .select('id,agent_id,status,created_at,verified_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (saved.error || alerts.error || claims.error) {
       workspaceStatus.textContent =
-        saved.error?.message || alerts.error?.message || 'Workspace unavailable.';
+        saved.error?.message ||
+        alerts.error?.message ||
+        claims.error?.message ||
+        'Workspace unavailable.';
       return;
     }
 
     const savedRows = saved.data || [];
     const alertRows = alerts.data || [];
+    const claimRows = claims.data || [];
 
     savedAgents.innerHTML = savedRows.length
       ? savedRows.map(row =>
@@ -183,9 +208,19 @@
         ).join('')
       : '<p class="empty">No alerts yet.</p>';
 
+    claimList.innerHTML = claimRows.length
+      ? claimRows.map(row =>
+          '<div class="workspace-row">' +
+            '<span>' + escapeHtml(row.agent_id) + '</span>' +
+            '<strong class="claim-state">' + escapeHtml(row.status) + '</strong>' +
+          '</div>'
+        ).join('')
+      : '<p class="empty">No maintainer claims yet.</p>';
+
     workspaceStatus.textContent =
       savedRows.length + ' saved · ' +
-      alertRows.filter(row => row.enabled).length + ' active alerts';
+      alertRows.filter(row => row.enabled).length + ' active alerts · ' +
+      claimRows.length + ' claims';
 
     document.querySelectorAll('[data-unsave]').forEach(button => {
       button.addEventListener('click', async () => {
