@@ -29,6 +29,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/discover.py
+      - name: Render optional runtime integrations
+        env:
+          AUN_SUPABASE_URL: ${{ vars.AUN_SUPABASE_URL }}
+          AUN_SUPABASE_ANON_KEY: ${{ vars.AUN_SUPABASE_ANON_KEY }}
+          AUN_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.AUN_CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+        run: python scripts/write_runtime_config.py
       - name: Validate generated site
         run: python scripts/validate_static_site.py
       - name: Configure Pages
