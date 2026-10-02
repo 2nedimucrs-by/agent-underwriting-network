@@ -9,6 +9,9 @@ Apply these SQL files in order:
 1. `migrations/001_initial.sql` — profiles, claims, saved agents, alerts, analytics, RLS, admin RPCs.
 2. `migrations/002_admin_bootstrap.example.sql` — one-time founder admin bootstrap after first sign-in. Replace the placeholder locally before running; never commit a real personal email to the public repository.
 3. `migrations/003_version_watch.sql` — version history, drift events and in-app notification queue.
+4. `migrations/004_security_acl_hardening.sql` — remove unintended Data API execution of privileged helpers.
+5. `migrations/005_admin_rpc_security_invoker.sql` — run admin RPCs with caller/RLS privileges.
+6. `migrations/006_rls_initplan_and_fk_indexes.sql` — optimize RLS auth lookups and foreign-key indexes.
 
 ## Edge Functions
 
@@ -54,7 +57,7 @@ API-key authentication, organization policy overrides and metering are later har
 
 ## Version watch
 
-`version-watch` requires an `AUN_CRON_TOKEN` secret and is called by the guarded GitHub Actions workflow.
+`version-watch` is active in production and scheduled through Supabase Cron every six hours. The scheduler token is stored in Supabase Vault; only its SHA-256 digest exists in source control.
 
 It creates in-app notifications only. No external email is sent automatically.
 
