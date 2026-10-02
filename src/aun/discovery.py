@@ -26,6 +26,79 @@ OUTPUT_PATH = SITE_ROOT / "data" / "agents.json"
 PUBLIC_BASE = "https://2nedimucrs-by.github.io/agent-underwriting-network"
 
 
+def _card_from_cached(raw: dict[str, Any], cached_at: str | None) -> AgentCard:
+    dims = raw.get("evidence_dimensions") or {}
+    metadata = dict(raw.get("metadata") or {})
+    metadata.pop("evidence_enrichment", None)
+    metadata["discovery_fallback"] = True
+    metadata["fallback_cached_at"] = cached_at
+
+    # Cached discovery data is inventory continuity, not fresh verification.
+    # Preserve only identity/provenance/freshness public-source states.
+    safe_dims = EvidenceDimensions(
+        identity=str(dims.get("identity") or "EVIDENCE_PARTIAL"),
+        provenance=str(dims.get("provenance") or "NOT_EVALUATED"),
+        security="NOT_EVALUATED",
+        permissions="NOT_EVALUATED",
+        capability="NOT_EVALUATED",
+        reliability="NOT_EVALUATED",
+        economics="NOT_EVALUATED",
+        freshness=str(dims.get("freshness") or "EVIDENCE_PARTIAL"),
+    )
+
+    return AgentCard(
+        agent_id=str(raw["agent_id"]),
+        source=dict(raw.get("source") or {}),
+        version=dict(raw.get("version") or {}),
+        status="DISCOVERED_NOT_VERIFIED",
+        evidence_dimensions=safe_dims,
+        schema_version=str(raw.get("schema_version") or "1.0.0"),
+        metadata=metadata,
+    )
+
+
+def _load_cached_cards() -> tuple[list[AgentCard], str | None]:
+    url = os.environ.get("AUN_SUPABASE_URL", "").strip().rstrip("/")
+    key = os.environ.get("AUN_SUPABASE_PUBLISHABLE_KEY", "").strip()
+    if not url or not key:
+        return [], None
+
+    request = urllib.request.Request(
+        (
+            url
+            + "/rest/v1/public_agent_index_cache"
+            + "?cache_key=eq.latest&select=payload,observed_at"
+        ),
+        headers={
+            "Accept": "application/json",
+            "apikey": key,
+            "User-Agent": "agent-underwriting-network/0.5",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            rows = json.load(response)
+    except Exception:
+        return [], None
+
+    if not rows:
+        return [], None
+
+    payload = rows[0].get("payload") or {}
+    cached_at = rows[0].get("observed_at")
+    agents = payload.get("agents") or []
+
+    cards: list[AgentCard] = []
+    for raw in agents:
+        try:
+            cards.append(_card_from_cached(raw, cached_at))
+        except Exception:
+            continue
+
+    return cards, cached_at
+
+
 def _github_get(path: str, token: str | None, retries: int = 2) -> dict[str, Any]:
     headers = {
         "Accept": "application/vnd.github+json",
@@ -460,6 +533,18 @@ def build_index(
                     }
                 )
 
+    degraded_mode = False
+    fallback_cached_at: str | None = None
+    if len(cards) < 100:
+        cached_cards, fallback_cached_at = _load_cached_cards()
+        if len(cached_cards) >= 100:
+            print(
+                "live GitHub discovery below minimum; "
+                f"using conservative cached inventory ({len(cached_cards)} profiles)"
+            )
+            cards = cached_cards
+            degraded_mode = True
+
     cards.sort(
         key=lambda card: (
             int(card.metadata.get("stars") or 0),
@@ -546,6 +631,8 @@ def build_index(
         "notice": "Discovery metadata and public-source evidence only. DISCOVERED does not mean VERIFIED.",
         "profile_count": len(cards),
         "seed_count": len(seeds),
+        "degraded_mode": degraded_mode,
+        "fallback_cached_at": fallback_cached_at,
         "categories": dict(sorted(categories.items())),
         "agents": [card.to_dict() for card in cards],
         "failures": sorted(failures, key=lambda item: item["repository"].lower()),
