@@ -10,9 +10,9 @@ from typing import Any
 from .models import AgentCard
 from .permissions import extract_permission_signals
 from .repo_acquisition import acquire_manifest_files
-from .scanners.github_advisory import scan_dependencies as scan_github_advisories
+from .scanners.github_advisory import GitHubAdvisoryDependencyScanner
 from .scanners.manifests import DependencySignal, extract_dependencies
-from .scanners.osv import scan_dependencies as scan_osv
+from .scanners.osv import OSVDependencyScanner
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -264,21 +264,21 @@ def enrich_card(
 
     scanner_summary: list[dict[str, Any]] = []
     if repository_key in targets.security_targets and dependencies:
-        scanner_runs = [
-            scan_osv(
-                dependencies,
-                artifact_hash=commit_sha,
+        scanners = [
+            OSVDependencyScanner(
                 max_dependencies=targets.max_security_dependencies,
             ),
-            scan_github_advisories(
-                dependencies,
-                artifact_hash=commit_sha,
+            GitHubAdvisoryDependencyScanner(
                 token=token,
                 max_dependencies=min(
                     targets.max_security_dependencies,
                     15,
                 ),
             ),
+        ]
+        scanner_runs = [
+            scanner.scan(dependencies, commit_sha)
+            for scanner in scanners
         ]
 
         successful = False
