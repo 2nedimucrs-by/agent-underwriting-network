@@ -102,7 +102,7 @@
       window.AUNAnalytics.track('CLAIM_START', { agent_id: claimId });
     }
 
-    const { error } = await client
+    const { data: claim, error } = await client
       .from('agent_claims')
       .upsert({
         user_id: user.id,
@@ -111,11 +111,39 @@
         github_login: githubLoginFromUser(user),
         status: 'PENDING_GITHUB_VERIFICATION',
         verification_method: 'github_oauth'
-      }, { onConflict: 'user_id,agent_id' });
+      }, { onConflict: 'user_id,agent_id' })
+      .select('id,status')
+      .single();
 
-    claimStatus.textContent = error
-      ? error.message
-      : 'Claim recorded. Maintainer relationship still requires verification.';
+    if (error) {
+      claimStatus.textContent = error.message;
+      return;
+    }
+
+    claimStatus.textContent = 'Claim recorded. Checking maintainer proof…';
+
+    const verification = await client.functions.invoke('verify-github-claim', {
+      body: { claim_id: claim.id }
+    });
+
+    if (verification.error) {
+      claimStatus.textContent =
+        'Claim recorded as pending. Automatic verification is not available yet.';
+      return;
+    }
+
+    if (verification.data?.status === 'VERIFIED_MAINTAINER') {
+      claimStatus.textContent =
+        'Maintainer identity verified. This does not verify the agent security or capability.';
+      if (window.AUNAnalytics) {
+        window.AUNAnalytics.track('CLAIM_COMPLETE', { agent_id: claimId });
+      }
+      return;
+    }
+
+    claimStatus.textContent =
+      verification.data?.reason ||
+      'Claim remains pending for organization/collaborator verification.';
   });
 
   deleteRequest.addEventListener('click', async () => {
