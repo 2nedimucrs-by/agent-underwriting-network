@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any, Callable
 
 
@@ -21,6 +22,8 @@ class BenchmarkReceipt:
     artifact_hash: str | None
     passed: bool
     score: float
+    latency_ms: float
+    cost_usd: float | None
     details: dict[str, Any]
 
 
@@ -30,10 +33,13 @@ def run_fixture(
     artifact_hash: str | None,
     executor: Callable[[], Any],
     evaluator: Callable[[Any], tuple[bool, float, dict[str, Any]]],
+    cost_usd: float | None = None,
 ) -> BenchmarkReceipt:
     """Run one bounded fixture and produce a reproducible receipt."""
 
+    started = perf_counter()
     output = executor()
+    latency_ms = (perf_counter() - started) * 1000.0
     passed, score, details = evaluator(output)
     score = max(0.0, min(1.0, float(score)))
 
@@ -45,5 +51,7 @@ def run_fixture(
         artifact_hash=artifact_hash,
         passed=bool(passed),
         score=score,
+        latency_ms=latency_ms,
+        cost_usd=cost_usd,
         details=details,
     )
