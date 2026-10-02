@@ -14,6 +14,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] public Trust Card pages
 - [x] README evidence badges
 - [x] comparison UI
+- [x] task underwriting UI
 
 ## Phase 1 — Control plane + evidence lifecycle — ACTIVE
 
@@ -31,7 +32,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] structured-extraction benchmark fixture
 - [x] read-only file benchmark fixture
 - [ ] execute capability fixtures against real third-party agent adapters
-- [ ] persist full historical evidence receipts across builds
+- [ ] persist full historical benchmark receipts
 - [ ] sandbox adapters for higher-risk runtime tests
 
 ## Phase 2 — Identity, claims and user workspace — ACTIVE
@@ -39,57 +40,60 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] Supabase project created
 - [x] initial database/RLS migration applied
 - [x] GitHub OAuth configured and live sign-in observed
+- [x] founder admin bootstrap
 - [x] account UI
 - [x] email magic-link client
 - [x] maintainer claim UI
-- [x] server-side claim verifier implementation
+- [x] server-side claim verifier deployed
 - [x] saved-agent UI
 - [x] version-drift alert preferences
 - [x] claim status workspace
-- [x] admin-role-aware Command Center link
-- [x] version history + in-app notification schema prepared
-- [x] version-watch Edge Function prepared
-- [ ] deploy claim/delete/can-hire/version-watch Edge Functions
-- [ ] apply admin bootstrap
-- [ ] apply version-watch migration
+- [x] Command Center admin entry point
+- [x] version history + in-app notification schema active
+- [x] version-watch Edge Function deployed
+- [x] six-hour Supabase Cron scheduler active
+- [x] 125 initial version snapshots persisted
 - [ ] verify email magic-link flow
+- [ ] verify maintainer claim end-to-end
 - [ ] organization/collaborator maintainer proof path
-- [ ] activate in-app notification UI after migration
+- [ ] verify real drift notification after an upstream version change
 
 ## Phase 3 — Analytics and operations — ACTIVE
 
-- [x] optional Cloudflare beacon integration
 - [x] consented first-party event client
-- [x] analytics database schema + RLS applied
+- [x] analytics database schema + RLS
 - [x] admin metrics RPC
 - [x] admin Command Center UI
 - [x] privacy/data map
 - [x] runtime config reports Supabase auth/product analytics enabled
-- [ ] bootstrap founder admin role
-- [ ] verify live analytics inserts and admin metrics
-- [ ] activate Cloudflare Web Analytics
+- [x] founder admin role active
+- [x] live analytics inserts observed
+- [x] admin metrics verified under authenticated RLS
+- [ ] optional Cloudflare Web Analytics
 - [ ] retention/recovery automation
+- [ ] backup/export/recovery drill
 
 ## Phase 4 — Distribution
 
 - [x] SEO profile pages + sitemap
 - [x] badge surface
 - [x] save/watch CTA on Trust Cards
-- [ ] maintainer verification Edge Function deployed
-- [ ] reusable GitHub Action for maintainers
+- [x] maintainer verification Edge Function deployed
+- [x] reusable GitHub Action for maintainers
 - [ ] contextual outreach queue
 - [ ] suppression/opt-out enforcement in sending layer
-- [ ] version/evidence notification delivery
+- [x] in-app version/evidence notification infrastructure
+- [ ] external notification delivery (opt-in only)
 
-## Phase 5 — Underwriting API + revenue — CORE READY
+## Phase 5 — Underwriting API + revenue — ACTIVE
 
 - [x] fail-closed decision primitive
 - [x] task-policy registry
 - [x] POST /can-hire request schema
-- [x] authenticated Supabase Edge Function implementation
+- [x] authenticated Supabase Edge Function deployed
 - [x] write-access and spend-limit policy enforcement
-- [ ] deploy can-hire Edge Function
-- [ ] API keys/rate limits
+- [x] signed-in UI invokes deployed can-hire API
+- [ ] external API keys/rate limits
 - [ ] organization policy overrides
 - [ ] private agent registry
 - [ ] audit export
@@ -102,8 +106,10 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] draft public-alpha terms
 - [x] security policy
 - [x] public Pages secret-like-material scan
-- [ ] live RLS abuse tests
-- [ ] Edge Function authorization tests
+- [x] live non-admin RLS visibility test
+- [x] Supabase security advisor critical privilege findings cleared
+- [x] RLS init-plan performance findings cleared
+- [ ] live user-session Edge Function smoke tests
 - [ ] abuse/rate-limit tests
 - [ ] backup/export/recovery drill
 - [ ] accessibility/mobile/browser acceptance
