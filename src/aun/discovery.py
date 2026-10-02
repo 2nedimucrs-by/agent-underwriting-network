@@ -480,6 +480,29 @@ def build_index(
         enriched_cards.append(enriched_card)
 
     cards = enriched_cards
+
+    enriched_count = 0
+    scanner_runs = 0
+    scanner_successes = 0
+    scanner_findings = 0
+    for card in cards:
+        summary = card.metadata.get("evidence_enrichment") or {}
+        if summary:
+            enriched_count += 1
+        for scanner in summary.get("security_scanners") or []:
+            scanner_runs += 1
+            if scanner.get("status") == "SUCCESS":
+                scanner_successes += 1
+            scanner_findings += int(scanner.get("finding_count") or 0)
+
+    print(
+        "evidence enrichment: "
+        f"profiles={enriched_count} "
+        f"scanner_runs={scanner_runs} "
+        f"scanner_successes={scanner_successes} "
+        f"scanner_findings={scanner_findings}"
+    )
+
     _write_sitemap(cards)
 
     categories: dict[str, int] = {}
