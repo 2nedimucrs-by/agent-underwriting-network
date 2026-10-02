@@ -25,11 +25,11 @@ language sql
 stable
 security definer
 set search_path = public
-as $$
+as $aun$
   select exists (
     select 1 from public.admin_users where user_id = auth.uid()
   );
-$$;
+$aun$;
 
 revoke all on function public.is_aun_admin() from public;
 grant execute on function public.is_aun_admin() to authenticated;
@@ -260,7 +260,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $aun$
 begin
   insert into public.profiles (
     user_id,
@@ -285,7 +285,7 @@ begin
 
   return new;
 end;
-$$;
+$aun$;
 
 drop trigger if exists on_auth_user_created_aun on auth.users;
 create trigger on_auth_user_created_aun
@@ -299,7 +299,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $aun$
 declare
   result jsonb;
 begin
@@ -360,14 +360,14 @@ begin
 
   return result;
 end;
-$$;
+$aun$;
 
 create or replace function public.admin_top_agents(hours_back integer default 24)
 returns table (agent_id text, event_count bigint)
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $aun$
 begin
   if not public.is_aun_admin() then
     raise exception 'not authorized';
@@ -382,7 +382,7 @@ begin
   order by count(*) desc
   limit 20;
 end;
-$$;
+$aun$;
 
 revoke all on function public.admin_dashboard_metrics() from public;
 revoke all on function public.admin_top_agents(integer) from public;
