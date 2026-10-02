@@ -43,8 +43,33 @@ const reasons = document.querySelector('#uw-reasons');
 const limits = document.querySelector('#uw-limits');
 const dimensions = document.querySelector('#uw-dimensions');
 const cardLink = document.querySelector('#uw-card-link');
+const modeStatus = document.querySelector('#uw-mode');
 
 let agents = [];
+let apiClient = null;
+let apiSession = null;
+
+const runtimeConfig = window.AUN_CONFIG || {};
+if (
+  runtimeConfig.authEnabled &&
+  runtimeConfig.supabaseUrl &&
+  runtimeConfig.supabasePublishableKey &&
+  window.supabase
+) {
+  apiClient = window.supabase.createClient(
+    runtimeConfig.supabaseUrl,
+    runtimeConfig.supabasePublishableKey
+  );
+  apiClient.auth.getSession().then(({ data }) => {
+    apiSession = data.session || null;
+    modeStatus.textContent = apiSession
+      ? 'Authenticated API mode: server-side policy enforcement is active.'
+      : 'Public preview mode: sign in to run the deployed can-hire API.';
+  });
+} else {
+  modeStatus.textContent =
+    'Public preview mode: backend auth is not configured.';
+}
 
 function esc(value) {
   return String(value ?? '').replace(/[&<>'"]/g, ch => ({
@@ -204,7 +229,35 @@ runButton.addEventListener('click', async () => {
       max_spend_usd: Math.max(0, Number(spendInput.value || 0))
     };
 
-    const output = evaluate(card, taskSelect.value, requested);
+    let output;
+    if (apiClient && apiSession) {
+      const invocation = await apiClient.functions.invoke('can-hire', {
+        body: {
+          agent_id: card.agent_id,
+          task_type: taskSelect.value,
+          limits: requested
+        }
+      });
+
+      if (invocation.error) {
+        throw new Error('Underwriting API error: ' + invocation.error.message);
+      }
+
+      output = {
+        decision: invocation.data.decision,
+        reasons: invocation.data.reasons || [],
+        limits: invocation.data.limits || {},
+        missing: invocation.data.missing_dimensions || [],
+        evidenceIds: invocation.data.evidence_ids || []
+      };
+      modeStatus.textContent =
+        'Authenticated API mode: decision returned by deployed can-hire.';
+    } else {
+      output = evaluate(card, taskSelect.value, requested);
+      modeStatus.textContent =
+        'Public preview mode: local fail-closed policy simulation.';
+    }
+
     renderDecision(card, taskSelect.value, output);
   } catch (error) {
     result.hidden = false;
