@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
-    const jwt = authHeader.replace(/^Bearer\\s+/i, "");
+    const jwt = authHeader.replace(/^Bearer\s+/i, "");
     if (!jwt) return json({ error: "missing authorization" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -45,4 +45,24 @@ function json(payload: unknown, status: number) {
     status,
     headers: { ...cors, "Content-Type": "application/json" },
   });
+}
+
+
+function readKeySet(currentName: string, legacyName: string): string {
+  const current = Deno.env.get(currentName);
+  if (current) {
+    try {
+      const parsed = JSON.parse(current);
+      if (typeof parsed?.default === "string" && parsed.default.trim()) {
+        return parsed.default.trim();
+      }
+    } catch (_) {
+      if (current.trim()) return current.trim();
+    }
+  }
+
+  const legacy = Deno.env.get(legacyName);
+  if (legacy?.trim()) return legacy.trim();
+
+  throw new Error("required Supabase API key is unavailable");
 }
