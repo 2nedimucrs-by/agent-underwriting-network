@@ -16,7 +16,7 @@
   const deleteRequest = document.querySelector('#delete-request');
   const deleteStatus = document.querySelector('#delete-status');
 
-  if (!config.authEnabled || !config.supabaseUrl || !config.supabaseAnonKey || !window.supabase) {
+  if (!config.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
     disabled.hidden = false;
     signedOut.querySelectorAll('button,input').forEach(el => el.disabled = true);
     return;
@@ -24,7 +24,7 @@
 
   const client = window.supabase.createClient(
     config.supabaseUrl,
-    config.supabaseAnonKey
+    config.supabasePublishableKey
   );
 
   const params = new URLSearchParams(location.search);
