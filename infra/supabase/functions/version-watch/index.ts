@@ -3,12 +3,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const PUBLIC_INDEX =
   "https://2nedimucrs-by.github.io/agent-underwriting-network/data/agents.json";
 
+const EXPECTED_TOKEN_SHA256 =
+  "ba456cd033754a97b5a87c91c65bf4ac816917073f2de2460eae14ebac029da9";
+
 Deno.serve(async (req) => {
   try {
-    const expectedToken = Deno.env.get("AUN_CRON_TOKEN");
-    const suppliedToken = req.headers.get("x-aun-cron-token");
+    const suppliedToken = req.headers.get("x-aun-cron-token") ?? "";
+    const suppliedHash = await sha256Hex(suppliedToken);
 
-    if (!expectedToken || suppliedToken !== expectedToken) {
+    if (!suppliedToken || suppliedHash !== EXPECTED_TOKEN_SHA256) {
       return json({ error: "unauthorized" }, 401);
     }
 
@@ -200,4 +203,13 @@ function readKeySet(currentName: string, legacyName: string): string {
   if (legacy?.trim()) return legacy.trim();
 
   throw new Error("required Supabase API key is unavailable");
+}
+
+
+async function sha256Hex(value: string): Promise<string> {
+  const bytes = new TextEncoder().encode(value);
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
