@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "repositories": [
+    "browser-use/browser-use",
+    "All-Hands-AI/OpenHands",
+    "cline/cline",
+    "langchain-ai/langgraph",
+    "crewAIInc/crewAI",
+    "pydantic/pydantic-ai",
+    "microsoft/autogen",
+    "n8n-io/n8n",
+    "langgenius/dify",
+    "modelcontextprotocol/servers",
+    "browserbase/stagehand",
+    "livekit/agents",
+    "pipecat-ai/pipecat",
+    "mem0ai/mem0",
+    "getzep/graphiti"
+  ]
+}
