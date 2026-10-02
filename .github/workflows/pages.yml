@@ -28,6 +28,8 @@ jobs:
       - name: Refresh public discovery index
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUN_SUPABASE_URL: ${{ vars.AUN_SUPABASE_URL }}
+          AUN_SUPABASE_PUBLISHABLE_KEY: ${{ vars.AUN_SUPABASE_PUBLISHABLE_KEY }}
         run: python scripts/discover.py
       - name: Render optional runtime integrations
         env:
