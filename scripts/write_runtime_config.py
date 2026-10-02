@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "site" / "runtime-config.js"
 
 supabase_url = os.environ.get("AUN_SUPABASE_URL", "").strip()
-supabase_key = os.environ.get("AUN_SUPABASE_ANON_KEY", "").strip()
+supabase_key = os.environ.get("AUN_SUPABASE_PUBLISHABLE_KEY", "").strip()
 cloudflare_token = os.environ.get(
     "AUN_CLOUDFLARE_WEB_ANALYTICS_TOKEN",
     "",
@@ -19,7 +19,7 @@ payload = {
     "authEnabled": bool(supabase_url and supabase_key),
     "productAnalyticsEnabled": bool(supabase_url and supabase_key),
     "supabaseUrl": supabase_url,
-    "supabaseAnonKey": supabase_key,
+    "supabasePublishableKey": supabase_key,
     "cloudflareWebAnalyticsToken": cloudflare_token,
 }
 
