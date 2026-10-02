@@ -19,5 +19,17 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e .
       - run: python -m unittest discover -s tests -v
+      - name: Check browser JavaScript syntax
+        run: |
+          node --check site/app.js
+          node --check site/account.js
+          node --check site/admin.js
+          node --check site/compare.js
+          node --check site/analytics.js
+          node --check site/underwrite.js
+      - name: Smoke-test maintainer evidence action collector
+        run: |
+          python scripts/maintainer_evidence.py
+          python -c "import json; p=json.load(open('.aun/evidence-submission.json')); assert p['status']=='SELF_COLLECTED_NOT_VERIFIED'"
       - run: python scripts/validate_static_site.py
       - run: python scripts/check_no_secrets.py
