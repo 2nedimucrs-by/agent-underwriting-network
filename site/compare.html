@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compare AI agents · Agent Underwriting Network</title>
+  <meta name="description" content="Compare version-pinned evidence dimensions for AI agents and agent infrastructure.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="shell header">
+    <a class="brand" href="./">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav">
+      <a href="./#index">Index</a>
+      <a href="./compare.html">Compare</a>
+      <a href="./#method">Method</a>
+    </nav>
+    <span class="phase">COMPARE</span>
+  </header>
+
+  <main class="shell compare-page">
+    <p class="eyebrow">TASK-FITNESS STARTS WITH EVIDENCE</p>
+    <h1 class="profile-title">Compare evidence, not marketing claims.</h1>
+    <p class="lede">Select up to four projects. This view compares what is actually present in the current public evidence card. NOT_EVALUATED is not treated as a negative score; it means the network has not produced that evidence yet.</p>
+
+    <div class="compare-picker">
+      <select id="agent-picker" class="select">
+        <option value="">Add another project…</option>
+      </select>
+      <button id="add-agent" class="button" type="button">Add to comparison</button>
+    </div>
+
+    <div id="compare-empty" class="panel">
+      Choose at least two projects from the public index or add them here.
+    </div>
+
+    <div id="compare-wrap" class="compare-table-wrap" hidden>
+      <table id="compare-table" class="compare-table"></table>
+    </div>
+  </main>
+
+  <footer class="shell footer">
+    <div><strong>Agent Underwriting Network</strong><span>Version-pinned evidence, not a universal trust score.</span></div>
+    <div><a href="./">Back to index</a><span>Apache-2.0 · No warranty.</span></div>
+  </footer>
+
+  <script src="./compare.js" defer></script>
+</body>
+</html>
