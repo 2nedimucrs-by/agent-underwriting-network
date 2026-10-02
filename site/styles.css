@@ -1161,3 +1161,11 @@ button, input, select { font: inherit; }
   .nav { gap: 6px; }
   .nav a { padding: 0 11px; font-size: 12px; }
 }
+
+
+/* Keep the mobile consent choice clear of the primary action. */
+@media (max-width: 620px) {
+  .lede { font-size: 17px; }
+  .hero-actions { margin: 18px 0 12px; }
+  .consent-banner { bottom: 10px; gap: 10px; padding: 12px; }
+}
