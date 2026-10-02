@@ -163,3 +163,22 @@ def scan_dependencies(
         scanned_dependencies=len(eligible),
         skipped_dependencies=skipped,
     )
+
+
+class OSVDependencyScanner:
+    scanner_id = "osv-api"
+    scanner_version = "v1-querybatch"
+
+    def __init__(self, max_dependencies: int = 25):
+        self.max_dependencies = max(1, min(int(max_dependencies), 50))
+
+    def scan(
+        self,
+        dependencies: list[DependencySignal],
+        artifact_hash: str | None,
+    ) -> ScannerRun:
+        return scan_dependencies(
+            dependencies,
+            artifact_hash=artifact_hash,
+            max_dependencies=self.max_dependencies,
+        )
