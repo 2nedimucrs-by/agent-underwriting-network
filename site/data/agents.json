@@ -1,7 +1,10 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "generated_at": null,
   "notice": "Bootstrap placeholder. Scheduled discovery refreshes this during site deployment. DISCOVERED does not mean VERIFIED.",
+  "profile_count": 0,
+  "seed_count": 125,
+  "categories": {},
   "agents": [],
   "failures": []
 }
