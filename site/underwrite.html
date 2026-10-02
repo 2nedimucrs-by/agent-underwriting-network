@@ -54,6 +54,7 @@
       </label>
 
       <button id="uw-run" class="button" type="button">Evaluate task fitness</button>
+      <p id="uw-mode" class="form-status underwrite-mode">Checking API session…</p>
     </section>
 
     <section id="uw-result" class="section-block" hidden>
@@ -96,6 +97,7 @@
     <div><strong>Fail closed by default</strong><span>Popularity, maintainer identity and scanner absence are not substitutes for task evidence.</span></div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./analytics.js"></script>
   <script src="./underwrite.js" defer></script>
 </body>
