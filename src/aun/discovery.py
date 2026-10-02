@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
+from .evidence_ops import enrich_card, load_targets
 from .models import AgentCard, EvidenceDimensions
 
 
@@ -435,6 +436,7 @@ def build_index(
 ) -> list[dict[str, Any]]:
     seeds = json.loads(seeds_path.read_text(encoding="utf-8"))["repositories"]
     token = os.environ.get("GITHUB_TOKEN")
+    targets = load_targets()
     cards: list[AgentCard] = []
     failures: list[dict[str, str]] = []
 
@@ -464,9 +466,19 @@ def build_index(
         reverse=True,
     )
 
+    enriched_cards: list[AgentCard] = []
     for card in cards:
-        _write_profile(card, _evidence_for(card))
+        enrichment = enrich_card(
+            card,
+            token=token,
+            targets=targets,
+        )
+        enriched_card = enrichment.card
+        evidence = _evidence_for(enriched_card) + list(enrichment.records)
+        _write_profile(enriched_card, evidence)
+        enriched_cards.append(enriched_card)
 
+    cards = enriched_cards
     _write_sitemap(cards)
 
     categories: dict[str, int] = {}
