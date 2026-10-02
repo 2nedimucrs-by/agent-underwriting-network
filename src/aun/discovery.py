@@ -468,15 +468,44 @@ def build_index(
         reverse=True,
     )
 
+    target_indexes = {
+        index
+        for index, card in enumerate(cards)
+        if str(card.metadata.get("repository") or "").lower()
+        in targets.manifest_targets
+    }
+
+    enrichment_by_index = {}
+    if target_indexes:
+        with ThreadPoolExecutor(
+            max_workers=min(4, len(target_indexes))
+        ) as pool:
+            future_map = {
+                pool.submit(
+                    enrich_card,
+                    cards[index],
+                    token=token,
+                    targets=targets,
+                ): index
+                for index in target_indexes
+            }
+            for future in as_completed(future_map):
+                index = future_map[future]
+                enrichment_by_index[index] = future.result()
+
     enriched_cards: list[AgentCard] = []
-    for card in cards:
-        enrichment = enrich_card(
-            card,
-            token=token,
-            targets=targets,
-        )
-        enriched_card = enrichment.card
-        evidence = _evidence_for(enriched_card) + list(enrichment.records)
+    for index, card in enumerate(cards):
+        enrichment = enrichment_by_index.get(index)
+        if enrichment is None:
+            enriched_card = card
+            evidence = _evidence_for(card)
+        else:
+            enriched_card = enrichment.card
+            evidence = (
+                _evidence_for(enriched_card)
+                + list(enrichment.records)
+            )
+
         _write_profile(enriched_card, evidence)
         enriched_cards.append(enriched_card)
 
