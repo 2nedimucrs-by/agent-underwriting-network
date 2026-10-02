@@ -13,6 +13,8 @@
   const claimAgent = document.querySelector('#claim-agent');
   const submitClaim = document.querySelector('#submit-claim');
   const claimStatus = document.querySelector('#claim-status');
+  const exportData = document.querySelector('#export-data');
+  const exportStatus = document.querySelector('#export-status');
   const deleteRequest = document.querySelector('#delete-request');
   const deleteStatus = document.querySelector('#delete-status');
   const savedAgents = document.querySelector('#saved-agents');
@@ -377,6 +379,34 @@
     claimStatus.textContent =
       verification.data?.reason ||
       'Claim remains pending for organization/collaborator verification.';
+  });
+
+  exportData.addEventListener('click', async () => {
+    exportStatus.textContent = 'Preparing export…';
+
+    const invocation = await client.functions.invoke('export-my-data', {
+      body: {}
+    });
+
+    if (invocation.error) {
+      exportStatus.textContent = invocation.error.message;
+      return;
+    }
+
+    const blob = new Blob(
+      [JSON.stringify(invocation.data, null, 2)],
+      { type: 'application/json' }
+    );
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'aun-account-export.json';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+
+    exportStatus.textContent = 'Account export created locally.';
   });
 
   deleteRequest.addEventListener('click', async () => {
