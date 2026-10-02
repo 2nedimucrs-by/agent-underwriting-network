@@ -15,6 +15,9 @@
   const claimStatus = document.querySelector('#claim-status');
   const deleteRequest = document.querySelector('#delete-request');
   const deleteStatus = document.querySelector('#delete-status');
+  const savedAgents = document.querySelector('#saved-agents');
+  const agentAlerts = document.querySelector('#agent-alerts');
+  const workspaceStatus = document.querySelector('#workspace-status');
 
   if (!config.authEnabled || !config.supabaseUrl || !config.supabasePublishableKey || !window.supabase) {
     disabled.hidden = false;
@@ -37,10 +40,15 @@
 
   const params = new URLSearchParams(location.search);
   const incomingClaimId = params.get('claim');
+  const incomingWatchId = params.get('watch');
   if (incomingClaimId) {
     sessionStorage.setItem('aun_pending_claim', incomingClaimId);
   }
+  if (incomingWatchId) {
+    sessionStorage.setItem('aun_pending_watch', incomingWatchId);
+  }
   const claimId = incomingClaimId || sessionStorage.getItem('aun_pending_claim');
+  const watchId = incomingWatchId || sessionStorage.getItem('aun_pending_watch');
 
   function githubLoginFromUser(user) {
     return user?.user_metadata?.user_name ||
@@ -69,6 +77,139 @@
       claimPanel.style.display = '';
       claimAgent.textContent = claimId;
     }
+
+    await applyPendingWatch(user);
+    await loadWorkspace(user);
+  }
+
+  async function applyPendingWatch(user) {
+    if (!watchId) return;
+
+    workspaceStatus.textContent = 'Saving watch…';
+
+    const saved = await client
+      .from('saved_agents')
+      .upsert(
+        { user_id: user.id, agent_id: watchId },
+        { onConflict: 'user_id,agent_id' }
+      );
+
+    if (saved.error) {
+      workspaceStatus.textContent = saved.error.message;
+      return;
+    }
+
+    const existing = await client
+      .from('agent_alerts')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('agent_id', watchId)
+      .eq('alert_type', 'VERSION_DRIFT')
+      .limit(1);
+
+    if (!existing.error && !(existing.data || []).length) {
+      await client
+        .from('agent_alerts')
+        .insert({
+          user_id: user.id,
+          agent_id: watchId,
+          alert_type: 'VERSION_DRIFT',
+          enabled: true
+        });
+    }
+
+    sessionStorage.removeItem('aun_pending_watch');
+    workspaceStatus.textContent = 'Agent saved and version-drift alert enabled.';
+
+    if (window.AUNAnalytics) {
+      window.AUNAnalytics.track('SAVE_AGENT', { agent_id: watchId });
+      window.AUNAnalytics.track('ALERT_CREATE', { agent_id: watchId });
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    })[ch]);
+  }
+
+  async function loadWorkspace(user) {
+    const saved = await client
+      .from('saved_agents')
+      .select('agent_id,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    const alerts = await client
+      .from('agent_alerts')
+      .select('id,agent_id,alert_type,enabled,created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (saved.error || alerts.error) {
+      workspaceStatus.textContent =
+        saved.error?.message || alerts.error?.message || 'Workspace unavailable.';
+      return;
+    }
+
+    const savedRows = saved.data || [];
+    const alertRows = alerts.data || [];
+
+    savedAgents.innerHTML = savedRows.length
+      ? savedRows.map(row =>
+          '<div class="workspace-row">' +
+            '<span>' + escapeHtml(row.agent_id) + '</span>' +
+            '<button class="text-button danger-link" data-unsave="' +
+              escapeHtml(row.agent_id) + '" type="button">Remove</button>' +
+          '</div>'
+        ).join('')
+      : '<p class="empty">No saved agents yet.</p>';
+
+    agentAlerts.innerHTML = alertRows.length
+      ? alertRows.map(row =>
+          '<div class="workspace-row">' +
+            '<span><strong>' + escapeHtml(row.alert_type) + '</strong><br>' +
+              escapeHtml(row.agent_id) + '</span>' +
+            '<button class="text-button" data-alert-id="' +
+              escapeHtml(row.id) + '" data-alert-enabled="' +
+              String(Boolean(row.enabled)) + '" type="button">' +
+              (row.enabled ? 'Pause' : 'Enable') +
+            '</button>' +
+          '</div>'
+        ).join('')
+      : '<p class="empty">No alerts yet.</p>';
+
+    workspaceStatus.textContent =
+      savedRows.length + ' saved · ' +
+      alertRows.filter(row => row.enabled).length + ' active alerts';
+
+    document.querySelectorAll('[data-unsave]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const agentId = button.dataset.unsave;
+        await client
+          .from('saved_agents')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('agent_id', agentId);
+        await loadWorkspace(user);
+      });
+    });
+
+    document.querySelectorAll('[data-alert-id]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const enabled = button.dataset.alertEnabled === 'true';
+        await client
+          .from('agent_alerts')
+          .update({ enabled: !enabled })
+          .eq('user_id', user.id)
+          .eq('id', button.dataset.alertId);
+        await loadWorkspace(user);
+      });
+    });
   }
 
   async function currentSession() {
