@@ -4,9 +4,15 @@ from aun.benchmarks.fixtures import (
     run_read_only_file_lookup,
     run_structured_extraction,
 )
-from aun.scanners.github_advisory import _exact_version as gh_exact_version
+from aun.scanners.github_advisory import (
+    GitHubAdvisoryDependencyScanner,
+    _exact_version as gh_exact_version,
+)
 from aun.scanners.manifests import DependencySignal
-from aun.scanners.osv import _exact_version as osv_exact_version
+from aun.scanners.osv import (
+    OSVDependencyScanner,
+    _exact_version as osv_exact_version,
+)
 
 
 class FakeHarness:
@@ -44,6 +50,17 @@ class SecurityAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(gh_exact_version(exact), "0.28.0")
         self.assertIsNone(gh_exact_version(ranged))
 
+    def test_dependency_scanners_expose_common_identity(self):
+        osv = OSVDependencyScanner(max_dependencies=5)
+        github = GitHubAdvisoryDependencyScanner(
+            token=None,
+            max_dependencies=5,
+        )
+        self.assertEqual(osv.scanner_id, "osv-api")
+        self.assertEqual(github.scanner_id, "github-global-advisories")
+        self.assertTrue(callable(osv.scan))
+        self.assertTrue(callable(github.scan))
+
     def test_structured_extraction_fixture(self):
         receipt = run_structured_extraction(
             FakeHarness(),
@@ -51,6 +68,8 @@ class SecurityAndBenchmarkTests(unittest.TestCase):
         )
         self.assertTrue(receipt.passed)
         self.assertEqual(receipt.score, 1.0)
+        self.assertGreaterEqual(receipt.latency_ms, 0)
+        self.assertIsNone(receipt.cost_usd)
 
     def test_read_only_fixture_requires_no_writes(self):
         receipt = run_read_only_file_lookup(
