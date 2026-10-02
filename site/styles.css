@@ -945,3 +945,25 @@ button, input, select { font: inherit; }
     flex-direction: column;
   }
 }
+
+.workspace-list {
+  display: grid;
+  gap: 8px;
+}
+
+.workspace-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-row:last-child {
+  border-bottom: 0;
+}
+
+.workspace-row span {
+  overflow-wrap: anywhere;
+}
