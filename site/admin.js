@@ -16,7 +16,7 @@
 
   const client = window.supabase.createClient(
     config.supabaseUrl,
-    config.supabaseAnonKey
+    config.supabasePublishableKey
   );
 
   function setMetric(id, value) {
