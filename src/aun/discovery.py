@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from .models import AgentCard, EvidenceDimensions
 
@@ -247,6 +248,7 @@ def _profile_html(card: AgentCard, evidence: list[dict[str, Any]]) -> str:
     slug = str(m.get("slug"))
     license_name = html.escape(str(m.get("license") or "unknown"))
     language = html.escape(str(m.get("language") or "unknown"))
+    claim_param = quote(card.agent_id, safe="")
 
     dimension_rows = "".join(
         f'<div class="dimension"><span>{html.escape(name.title())}</span><strong class="dim-state">{html.escape(state)}</strong></div>'
@@ -268,10 +270,12 @@ def _profile_html(card: AgentCard, evidence: list[dict[str, Any]]) -> str:
   <title>{repo_name} · Trust Card · Agent Underwriting Network</title>
   <meta name="description" content="Version-pinned evidence card for {repo_name}.">
   <link rel="stylesheet" href="../../styles.css">
+  <script src="../../runtime-config.js"></script>
 </head>
 <body>
   <header class="shell header">
-    <a class="brand" href="../../">Agent Underwriting Network</a>
+    <a class="brand" href="../../">AUN <span>Agent Underwriting Network</span></a>
+    <nav class="nav"><a href="../../#index">Index</a><a href="../../compare.html">Compare</a><a href="../../account.html">Account</a></nav>
     <span class="phase">TRUST CARD</span>
   </header>
   <main class="shell profile-main">
@@ -339,10 +343,13 @@ def _profile_html(card: AgentCard, evidence: list[dict[str, Any]]) -> str:
 
     <section class="profile-actions">
       <a class="button" href="../../compare.html?agents={slug}">Compare this project</a>
+      <a class="button secondary" href="../../account.html?claim={claim_param}">Claim this profile</a>
       <a class="button secondary" href="{source}" target="_blank" rel="noreferrer">Open source repository</a>
     </section>
   </main>
   <footer class="shell footer">Evidence is version-specific · No warranty · No pay-to-rank placement.</footer>
+  <script src="../../analytics.js"></script>
+  <script>if (window.AUNAnalytics) window.AUNAnalytics.track("TRUST_CARD_VIEW", {agent_id: {json.dumps(card.agent_id)}});</script>
 </body>
 </html>
 """
@@ -398,6 +405,9 @@ def _write_sitemap(cards: list[AgentCard]) -> None:
     urls = [
         f"{PUBLIC_BASE}/",
         f"{PUBLIC_BASE}/compare.html",
+        f"{PUBLIC_BASE}/account.html",
+        f"{PUBLIC_BASE}/privacy.html",
+        f"{PUBLIC_BASE}/terms.html",
     ]
     urls.extend(
         f"{PUBLIC_BASE}/agents/{card.metadata['slug']}/"
