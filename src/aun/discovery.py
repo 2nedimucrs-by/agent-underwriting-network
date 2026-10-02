@@ -349,7 +349,7 @@ def _profile_html(card: AgentCard, evidence: list[dict[str, Any]]) -> str:
   </main>
   <footer class="shell footer">Evidence is version-specific · No warranty · No pay-to-rank placement.</footer>
   <script src="../../analytics.js"></script>
-  <script>if (window.AUNAnalytics) window.AUNAnalytics.track("TRUST_CARD_VIEW", {agent_id: {json.dumps(card.agent_id)}});</script>
+  <script>if (window.AUNAnalytics) window.AUNAnalytics.track("TRUST_CARD_VIEW", {{agent_id: {json.dumps(card.agent_id)}}});</script>
 </body>
 </html>
 """
