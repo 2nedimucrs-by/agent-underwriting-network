@@ -15,5 +15,5 @@
     "OpenHands/OpenHands",
     "github/github-mcp-server"
   ],
-  "max_security_dependencies": 25
+  "max_security_dependencies": 12
 }
