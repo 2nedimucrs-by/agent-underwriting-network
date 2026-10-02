@@ -13,14 +13,9 @@ DEFAULT_MANIFEST_PATHS = (
     "requirements.txt",
     "requirements-dev.txt",
     "package.json",
-    "package-lock.json",
-    "pnpm-lock.yaml",
-    "yarn.lock",
-    "Cargo.toml",
-    "go.mod",
 )
 
-MAX_FILES = 9
+MAX_FILES = 4
 MAX_FILE_BYTES = 256_000
 
 
