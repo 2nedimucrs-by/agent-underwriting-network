@@ -1,14 +1,16 @@
 # Agent Underwriting Network
 
-Independent, evidence-linked verification and task-fitness infrastructure for AI agents.
+Independent, evidence-linked task-fitness infrastructure for AI agents, MCP tools and agent ecosystems.
 
-> Project bootstrap in progress. This repository starts as a zero-fixed-cost, public, version-pinned evidence network built on GitHub Actions and GitHub Pages.
+**Live public index:** https://2nedimucrs-by.github.io/agent-underwriting-network/
 
-## Core idea
+## Core question
 
-Do not ask only whether an agent is "safe." Ask whether a specific, version-pinned agent is fit for a specific task, under a specific permission and budget envelope, with evidence.
+Do not ask only whether an agent is "safe."
 
-The project separates:
+Ask whether a specific, version-pinned agent is fit for a specific task, under a specific permission and budget envelope, with evidence.
+
+The network separates:
 
 - identity and source provenance
 - security and permission evidence
@@ -20,27 +22,28 @@ The project separates:
 
 No single universal trust score is treated as authority.
 
-## Current phase
+## Public alpha
 
-**Phase 0 — Foundation / bootstrap**
+The public site is built and deployed with GitHub Actions + GitHub Pages. The discovery pipeline refreshes a curated 125-project agent ecosystem corpus and generates:
 
-Initial goals:
+- public agent/tool profiles
+- exact default-branch head pins where GitHub exposes them
+- evidence-linked Trust Card JSON
+- raw Evidence Record JSON
+- README evidence badges
+- side-by-side comparison
+- search/category/sort directory
+- sitemap and robots metadata
 
-1. public agent discovery
-2. version fingerprinting
-3. evidence schema
-4. public agent profiles
-5. GitHub/MCP verification pipeline
-6. README verification badge
-7. task-fitness API contract
-8. maintainer claim flow
-9. continuous version-drift monitoring
+The V0 evidence layer is deliberately conservative. Public repository metadata can support partial identity, provenance and freshness evidence. It does **not** automatically prove security, permissions, capability, reliability or economics.
 
-Marketplace, wallet, escrow and automated purchasing are intentionally out of scope until the evidence network has real usage history.
+## Long-term sequence
 
-## Operating principle
+**Index -> Evidence Network -> Underwriting API -> Agent Router -> Verified Labor Exchange**
 
-Every external claim must be evidence-linked and version-pinned.
+Marketplace, wallet, escrow and automated purchasing are intentionally out of scope until the evidence network has meaningful real-world history.
+
+## Operating principles
 
 DISCOVERED != VERIFIED
 
@@ -49,6 +52,19 @@ SECURE != CAPABLE
 CAPABLE != AUTHORIZED
 
 AUTHORIZED != ECONOMIC
+
+MISSING REQUIRED EVIDENCE = FAIL CLOSED
+
+## Development
+
+Python 3.11+.
+
+```bash
+python -m pip install -e .
+python -m unittest discover -s tests -v
+python scripts/discover.py
+python scripts/validate_static_site.py
+```
 
 ## License
 
