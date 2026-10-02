@@ -1,6 +1,6 @@
 # Current state
 
-Status: PUBLIC_ALPHA_EVIDENCE_AND_ACCOUNT_PLATFORM_ACTIVE
+Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 
 ## Live and verified
 
@@ -11,14 +11,15 @@ Status: PUBLIC_ALPHA_EVIDENCE_AND_ACCOUNT_PLATFORM_ACTIVE
 - Trust Card JSON + Evidence JSON
 - conservative evidence badge
 - multi-agent comparison UI
+- task underwriting page
 - search/category/sort directory
 - daily scheduled discovery
 - GitHub Actions CI/deploy
-- Supabase project created
-- initial Supabase schema/RLS migration applied successfully
-- GitHub OAuth configured
-- live GitHub sign-in observed on account page
-- Pages runtime config reports auth=ON and product_analytics=ON
+- Supabase project ACTIVE_HEALTHY in Frankfurt
+- GitHub OAuth configured and live sign-in observed
+- founder account bootstrapped as admin
+- product analytics receiving live page-view events
+- admin metrics RPC verified under authenticated RLS context
 
 ## Evidence/control-plane implementation
 
@@ -46,34 +47,59 @@ Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner succe
 - version-drift alert preferences
 - claim status list
 - account deletion request
-- admin-role-aware Command Center entry point
-- prepared server-side claim verifier
-- prepared account deletion function
-- prepared version history/drift migration
-- prepared version-watch function and guarded scheduler
+- admin Command Center
+- server-side claim verifier deployed
+- account deletion Edge Function deployed
+- version history/drift schema active
+- in-app notification schema active
+- version-watch Edge Function active
 
 ## Underwriting implementation
 
 - fail-closed task policy engine
 - task policy registry
 - can-hire request schema
-- authenticated can-hire Edge Function implementation
+- can-hire Edge Function deployed
 - write-access policy enforcement
 - spend-limit enforcement
 - evidence IDs returned by decision contract
+- signed-in users use server-side underwriting API from the public underwriting page
+- anonymous users receive local fail-closed preview only
 
 Current public evidence is intentionally insufficient for most ALLOW decisions.
 
-## Remaining external activation work
+## Version-watch operations
 
-The following require Supabase-side changes or secrets and are not claimed as active yet:
+- Supabase Vault holds the scheduler token
+- only the scheduler-token SHA-256 digest is committed in source
+- Supabase Cron runs every six hours
+- manual smoke run succeeded
+- 125 initial version snapshots persisted
+- zero drift events on baseline
+- GitHub Actions duplicate schedule disabled
 
-- founder admin bootstrap
-- deploy Edge Functions: verify-github-claim, delete-account, can-hire, version-watch
-- apply 003_version_watch.sql
-- configure AUN_CRON_TOKEN + matching GitHub repository secret
-- verify email magic-link login
-- optional Cloudflare Web Analytics token
+## Security/performance posture
+
+- all public application tables have RLS enabled
+- non-admin authenticated RLS test sees zero admin/analytics rows
+- SECURITY DEFINER exposure warnings cleared
+- admin RPCs switched to SECURITY INVOKER
+- RLS init-plan warnings cleared
+- missing foreign-key indexes added
+- only current security advisor warning is leaked-password protection, while the product currently uses GitHub OAuth and passwordless magic links
+- remaining performance notices are unused-index informational notices on the new low-traffic database
+
+## Remaining activation / validation work
+
+- verify email magic-link flow interactively
+- test claim verification end-to-end from a Trust Card
+- test saved-agent + version-drift notification end-to-end on a real upstream version change
+- execute capability fixtures against real third-party agent adapters in a controlled sandbox
+- add API-key authentication/rate limits for external underwriting API customers
+- backup/export/recovery drill
+- accessibility/mobile/browser acceptance
+- private alpha customer validation
+- jurisdiction-specific legal review
 
 ## Product truth boundary
 
@@ -88,14 +114,3 @@ CAPABLE != AUTHORIZED
 AUTHORIZED != ECONOMIC
 
 Missing or stale required evidence fails closed.
-
-## Highest-priority next work
-
-1. deploy/verify Supabase Edge Functions
-2. bootstrap founder admin + verify Command Center metrics
-3. apply version-watch migration and activate in-app drift notifications
-4. execute benchmark harness against real target-agent adapters
-5. add reusable maintainer GitHub Action
-6. harden API authentication/rate limits
-7. live RLS/Edge Function abuse testing
-8. private alpha customer validation
