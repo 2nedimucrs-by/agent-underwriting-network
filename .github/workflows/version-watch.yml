@@ -1,31 +1,15 @@
-name: Version Drift Watch
+name: Version Drift Watch — Manual Fallback
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '43 */6 * * *'
 
 permissions:
   contents: read
 
 jobs:
-  watch:
+  explain:
     runs-on: ubuntu-latest
-    env:
-      AUN_SUPABASE_URL: ${{ vars.AUN_SUPABASE_URL }}
-      AUN_VERSION_WATCH_TOKEN: ${{ secrets.AUN_VERSION_WATCH_TOKEN }}
-
     steps:
-      - name: Skip until version-watch backend is activated
-        if: env.AUN_VERSION_WATCH_TOKEN == ''
-        run: echo "Version watch is prepared but not activated."
-
-      - name: Run version-watch function
-        if: env.AUN_VERSION_WATCH_TOKEN != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl --fail-with-body \
-            --request POST \
-            --header "x-aun-cron-token: ${AUN_VERSION_WATCH_TOKEN}" \
-            "${AUN_SUPABASE_URL}/functions/v1/version-watch"
+      - run: |
+          echo "Production scheduling runs inside Supabase Cron."
+          echo "This workflow is retained only as a manual operational marker."
