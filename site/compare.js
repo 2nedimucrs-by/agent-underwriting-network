@@ -152,3 +152,9 @@ addAgent.addEventListener('click', () => {
   populatePicker();
   render();
 });
+
+window.addEventListener('load', () => {
+  if (window.AUNAnalytics && new URLSearchParams(location.search).get('agents')) {
+    window.AUNAnalytics.track('COMPARE_RUN', { count: state.selected.length });
+  }
+});
