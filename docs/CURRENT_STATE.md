@@ -1,52 +1,69 @@
 # Current state
 
-Status: FOUNDATION_BOOTSTRAPPED_PAGES_LIVE
+Status: PUBLIC_ALPHA_PLATFORM_BUILD_IN_PROGRESS
 
-## Implemented
+## Live and verified
 
 - public repository under 2nedimucrs-by
-- Apache-2.0 bootstrap
-- source/evidence/underwriting JSON schemas
-- fail-closed Python underwriting primitive
-- GitHub repository discovery worker
-- curated initial seed list
-- static public index
-- GitHub Actions CI
-- scheduled GitHub Pages build/deploy workflow
-- live GitHub Pages deployment
-- product invariants
-- Chief + 10 specialist operating model
-- growth/outreach policy
-- business-model hypothesis
+- live GitHub Pages site
+- 125 generated agent/tool profiles
+- per-profile Trust Card page
+- Trust Card JSON + Evidence JSON
+- conservative evidence badge
+- multi-agent comparison UI
+- search/category/sort directory
+- daily scheduled discovery
+- fail-closed underwriting primitive
+- GitHub Actions CI/deploy
 
-## Verified runtime evidence
+## Newly implemented in the finish-plan pass
 
-- CI run 37049565904: SUCCESS
-- Pages workflow run 37049565699 attempt 2: build SUCCESS
-- Configure Pages: SUCCESS
-- Pages artifact upload: SUCCESS
-- deploy job: SUCCESS
+- machine-readable Underwriting Chief + 10 worker contracts
+- capability ownership and external-action policy gates
+- version-drift stale-evidence primitive
+- dependency manifest extractor
+- declared permission-surface extractor
+- scanner adapter protocol preserving conflicting findings
+- reproducible benchmark receipt protocol
+- Supabase identity/claims/saved-agents/alerts/analytics schema with RLS
+- GitHub OAuth + email magic-link account frontend
+- pending maintainer claim flow
+- optional Cloudflare Web Analytics injection
+- consented first-party product-event client
+- admin-only Command Center frontend + metrics RPC
+- account deletion request contract
+- privacy/data map + draft privacy/terms
+- end-to-end finish plan
 
-Expected public URL:
+## External setup still required
 
-https://2nedimucrs-by.github.io/agent-underwriting-network/
+The repository cannot create third-party accounts or secrets by itself.
 
-## Not yet proven
+Required to activate account/analytics features:
+- dedicated Supabase project
+- apply infra/supabase/migrations/001_initial.sql
+- GitHub OAuth App configured in Supabase
+- repository variables AUN_SUPABASE_URL and AUN_SUPABASE_ANON_KEY
+- optional AUN_CLOUDFLARE_WEB_ANALYTICS_TOKEN
+- founder auth UUID inserted into admin_users
 
-- first 100 discovery profiles
-- MCP Registry discovery
-- A2A Agent Card discovery
-- dependency scanner evidence
-- permission extraction
-- security scanner aggregation
-- reproducible capability benchmarks
-- public Trust Card pages
-- maintainer claim flow
-- README badge
-- contextual outreach queue
-- production underwriting API
-- paid customer demand
+Until those values exist, the public evidence directory continues working and account/analytics features remain safely disabled.
 
-## Current rule
+## Product truth boundary
 
-No public profile may imply verification from GitHub metadata alone.
+Public GitHub metadata may support EVIDENCE_PARTIAL identity/provenance/freshness.
+
+It does not prove security, permission safety, capability, reliability or economics.
+
+Maintainer identity verification is also separate from agent verification.
+
+## Highest-priority remaining engineering
+
+1. wire dependency/permission evidence to bounded repo acquisition
+2. real scanner adapters
+3. first capability benchmark fixtures
+4. activate Supabase auth and admin analytics
+5. server-side GitHub maintainer verification
+6. saved agents + drift alerts
+7. production underwriting API
+8. launch security/recovery/private-alpha gate
