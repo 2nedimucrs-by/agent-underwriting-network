@@ -1,0 +1,52 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      AUN_SUPABASE_URL: ${{ vars.AUN_SUPABASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require deployment credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SUPABASE_ACCESS_TOKEN}" || { echo 'Missing SUPABASE_ACCESS_TOKEN'; exit 1; }
+          test -n "${AUN_SUPABASE_URL}" || { echo 'Missing AUN_SUPABASE_URL'; exit 1; }
+
+      - name: Resolve project ref
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="${AUN_SUPABASE_URL#https://}"
+          ref="${ref%%.supabase.co*}"
+          test -n "${ref}"
+          echo "ref=${ref}" >> "$GITHUB_OUTPUT"
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy authenticated functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy verify-github-claim --project-ref "${{ steps.project.outputs.ref }}"
+          supabase functions deploy delete-account --project-ref "${{ steps.project.outputs.ref }}"
+          supabase functions deploy can-hire --project-ref "${{ steps.project.outputs.ref }}"
+
+      - name: Deploy cron-token protected version watcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase functions deploy version-watch --no-verify-jwt --project-ref "${{ steps.project.outputs.ref }}"
