@@ -1,6 +1,6 @@
 # Current state
 
-Status: PUBLIC_ALPHA_PLATFORM_BUILD_IN_PROGRESS
+Status: PUBLIC_ALPHA_EVIDENCE_AND_ACCOUNT_PLATFORM_ACTIVE
 
 ## Live and verified
 
@@ -13,57 +13,89 @@ Status: PUBLIC_ALPHA_PLATFORM_BUILD_IN_PROGRESS
 - multi-agent comparison UI
 - search/category/sort directory
 - daily scheduled discovery
-- fail-closed underwriting primitive
 - GitHub Actions CI/deploy
+- Supabase project created
+- initial Supabase schema/RLS migration applied successfully
+- GitHub OAuth configured
+- live GitHub sign-in observed on account page
+- Pages runtime config reports auth=ON and product_analytics=ON
 
-## Newly implemented in the finish-plan pass
+## Evidence/control-plane implementation
 
 - machine-readable Underwriting Chief + 10 worker contracts
-- capability ownership and external-action policy gates
+- external-action policy gates
 - version-drift stale-evidence primitive
-- dependency manifest extractor
-- declared permission-surface extractor
-- scanner adapter protocol preserving conflicting findings
+- bounded repository manifest acquisition
+- dependency inventory extraction
+- declared permission/tool-surface signal extraction
+- selected-profile enrichment allowlist
+- OSV dependency advisory scanner adapter
+- GitHub Global Advisory scanner adapter
+- scanner/tool version provenance
+- scanner failures represented explicitly rather than silently ignored
 - reproducible benchmark receipt protocol
-- Supabase identity/claims/saved-agents/alerts/analytics schema with RLS
-- GitHub OAuth + email magic-link account frontend
-- pending maintainer claim flow
-- optional Cloudflare Web Analytics injection
-- consented first-party product-event client
-- admin-only Command Center frontend + metrics RPC
-- account deletion request contract
-- privacy/data map + draft privacy/terms
-- end-to-end finish plan
+- structured extraction + read-only file benchmark fixtures
 
-## External setup still required
+Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner success does not create a global SAFE verdict.
 
-The repository cannot create third-party accounts or secrets by itself.
+## User/account implementation
 
-Required to activate account/analytics features:
-- dedicated Supabase project
-- apply infra/supabase/migrations/001_initial.sql
-- GitHub OAuth App configured in Supabase
-- repository variables AUN_SUPABASE_URL and AUN_SUPABASE_ANON_KEY
-- optional AUN_CLOUDFLARE_WEB_ANALYTICS_TOKEN
-- founder auth UUID inserted into admin_users
+- GitHub OAuth + email magic-link frontend
+- maintainer claim flow
+- saved agents
+- version-drift alert preferences
+- claim status list
+- account deletion request
+- admin-role-aware Command Center entry point
+- prepared server-side claim verifier
+- prepared account deletion function
+- prepared version history/drift migration
+- prepared version-watch function and guarded scheduler
 
-Until those values exist, the public evidence directory continues working and account/analytics features remain safely disabled.
+## Underwriting implementation
+
+- fail-closed task policy engine
+- task policy registry
+- can-hire request schema
+- authenticated can-hire Edge Function implementation
+- write-access policy enforcement
+- spend-limit enforcement
+- evidence IDs returned by decision contract
+
+Current public evidence is intentionally insufficient for most ALLOW decisions.
+
+## Remaining external activation work
+
+The following require Supabase-side changes or secrets and are not claimed as active yet:
+
+- founder admin bootstrap
+- deploy Edge Functions: verify-github-claim, delete-account, can-hire, version-watch
+- apply 003_version_watch.sql
+- configure AUN_CRON_TOKEN + matching GitHub repository secret
+- verify email magic-link login
+- optional Cloudflare Web Analytics token
 
 ## Product truth boundary
 
-Public GitHub metadata may support EVIDENCE_PARTIAL identity/provenance/freshness.
+DISCOVERED != VERIFIED
 
-It does not prove security, permission safety, capability, reliability or economics.
+MAINTAINER VERIFIED != AGENT VERIFIED
 
-Maintainer identity verification is also separate from agent verification.
+SECURITY SCANNER SUCCESS != SAFE
 
-## Highest-priority remaining engineering
+CAPABLE != AUTHORIZED
 
-1. wire dependency/permission evidence to bounded repo acquisition
-2. real scanner adapters
-3. first capability benchmark fixtures
-4. activate Supabase auth and admin analytics
-5. server-side GitHub maintainer verification
-6. saved agents + drift alerts
-7. production underwriting API
-8. launch security/recovery/private-alpha gate
+AUTHORIZED != ECONOMIC
+
+Missing or stale required evidence fails closed.
+
+## Highest-priority next work
+
+1. deploy/verify Supabase Edge Functions
+2. bootstrap founder admin + verify Command Center metrics
+3. apply version-watch migration and activate in-app drift notifications
+4. execute benchmark harness against real target-agent adapters
+5. add reusable maintainer GitHub Action
+6. harden API authentication/rate limits
+7. live RLS/Edge Function abuse testing
+8. private alpha customer validation
