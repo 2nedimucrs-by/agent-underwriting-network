@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0.0",
+  "chief": {
+    "id": "underwriting-chief",
+    "purpose": "Route bounded work, enforce evidence freshness, stop conditions and publication gates.",
+    "external_action_policy": "approval_required"
+  },
+  "workers": [
+    {
+      "id": "github-scout",
+      "capabilities": ["discover.github", "metadata.github"],
+      "mode": "deterministic",
+      "writes": ["discovery_record"],
+      "external_action_policy": "read_only"
+    },
+    {
+      "id": "mcp-a2a-scout",
+      "capabilities": ["discover.mcp", "discover.a2a"],
+      "mode": "deterministic",
+      "writes": ["discovery_record"],
+      "external_action_policy": "read_only"
+    },
+    {
+      "id": "release-watcher",
+      "capabilities": ["version.compare", "evidence.mark_stale"],
+      "mode": "deterministic",
+      "writes": ["version_event", "evidence_state"],
+      "external_action_policy": "none"
+    },
+    {
+      "id": "provenance-auditor",
+      "capabilities": ["provenance.pin", "provenance.hash"],
+      "mode": "deterministic",
+      "writes": ["evidence_record"],
+      "external_action_policy": "read_only"
+    },
+    {
+      "id": "dependency-permission-auditor",
+      "capabilities": ["dependency.extract", "permission.extract"],
+      "mode": "deterministic",
+      "writes": ["evidence_record"],
+      "external_action_policy": "read_only"
+    },
+    {
+      "id": "security-aggregator",
+      "capabilities": ["security.scan.normalize", "security.finding.aggregate"],
+      "mode": "deterministic_with_optional_reasoning",
+      "writes": ["evidence_record"],
+      "external_action_policy": "sandbox_only"
+    },
+    {
+      "id": "capability-benchmark-worker",
+      "capabilities": ["benchmark.run", "benchmark.receipt"],
+      "mode": "deterministic_with_optional_reasoning",
+      "writes": ["benchmark_result", "evidence_record"],
+      "external_action_policy": "sandbox_only"
+    },
+    {
+      "id": "evidence-compiler",
+      "capabilities": ["evidence.compile", "trust_card.project"],
+      "mode": "deterministic",
+      "writes": ["trust_card", "public_projection"],
+      "external_action_policy": "none"
+    },
+    {
+      "id": "lead-intelligence-worker",
+      "capabilities": ["lead.public_signal", "lead.context"],
+      "mode": "deterministic_with_optional_reasoning",
+      "writes": ["lead_record"],
+      "external_action_policy": "read_only"
+    },
+    {
+      "id": "outreach-seo-worker",
+      "capabilities": ["outreach.draft", "seo.project"],
+      "mode": "optional_reasoning",
+      "writes": ["outreach_draft", "seo_projection"],
+      "external_action_policy": "approval_required"
+    }
+  ],
+  "forbidden_autonomous_actions": [
+    "bulk_email_send",
+    "github_issue_advertising",
+    "github_comment_advertising",
+    "purchase",
+    "credential_rotation",
+    "production_write_without_policy",
+    "evidence_upgrade_without_evidence_ids"
+  ]
+}
