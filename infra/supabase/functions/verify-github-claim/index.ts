@@ -55,8 +55,11 @@ Deno.serve(async (req) => {
     }
 
     const claimDisposition = classifyClaimStatus(claim.status);
-    if (claimDisposition === "already_verified") {
-      return json({ status: claim.status, proof: "already_verified" }, 200);
+    if (claimDisposition === "replay_denied") {
+      return json({
+        error: "claim verification replay denied",
+        status: claim.status,
+      }, 409);
     }
     if (claimDisposition === "terminal") {
       return json({

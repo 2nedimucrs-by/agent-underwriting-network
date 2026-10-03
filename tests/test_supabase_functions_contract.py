@@ -51,6 +51,8 @@ class SupabaseFunctionContractTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         self.assertIn("classifyClaimStatus(claim.status)", source)
+        self.assertIn('claimDisposition === "replay_denied"', source)
+        self.assertIn("claim verification replay denied", source)
         self.assertIn('claimDisposition === "terminal"', source)
         self.assertIn("claim is not pending verification", source)
         self.assertIn("async function updatePendingClaim(", source)

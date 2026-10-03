@@ -8,7 +8,7 @@ import {
 
 test("only pending claims can enter verification; terminal states stay closed", () => {
   assert.equal(classifyClaimStatus(CLAIM_STATUS.PENDING), "pending");
-  assert.equal(classifyClaimStatus(CLAIM_STATUS.VERIFIED), "already_verified");
+  assert.equal(classifyClaimStatus(CLAIM_STATUS.VERIFIED), "replay_denied");
   assert.equal(classifyClaimStatus("REJECTED"), "terminal");
   assert.equal(classifyClaimStatus("REVOKED"), "terminal");
   assert.equal(classifyClaimStatus("UNKNOWN"), "terminal");

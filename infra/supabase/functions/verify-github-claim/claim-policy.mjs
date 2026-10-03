@@ -4,7 +4,7 @@ export const CLAIM_STATUS = {
 };
 
 export function classifyClaimStatus(status) {
-  if (status === CLAIM_STATUS.VERIFIED) return "already_verified";
+  if (status === CLAIM_STATUS.VERIFIED) return "replay_denied";
   if (status === CLAIM_STATUS.PENDING) return "pending";
   return "terminal";
 }
