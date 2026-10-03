@@ -1,33 +1,16 @@
--- Keep the active version-watch schedule reproducible and Vault-backed.
--- Only this expected job is replaced; the raw token remains in Supabase Vault.
-do $migration$
-declare
-  existing_job record;
-begin
-  for existing_job in
-    select jobid
-    from cron.job
-    where jobname = 'aun-version-watch'
-  loop
-    perform cron.unschedule(existing_job.jobid);
-  end loop;
-end;
-$migration$;
 
 select cron.schedule(
   'aun-version-watch',
   '43 */6 * * *',
-  $job$
+  $cron$
   select net.http_post(
     url := 'https://sfplbbnratiznbipniez.supabase.co/functions/v1/version-watch',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'x-aun-cron-token',
-      (
-        select decrypted_secret
-        from vault.decrypted_secrets
-        where name = 'aun_version_watch_token'
-      )
+      (select decrypted_secret
+       from vault.decrypted_secrets
+       where name = 'aun_version_watch_token')
     ),
     body := jsonb_build_object(
       'source', 'supabase-cron',
@@ -35,5 +18,5 @@ select cron.schedule(
     ),
     timeout_milliseconds := 15000
   );
-  $job$
+  $cron$
 );

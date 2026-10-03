@@ -10,7 +10,7 @@ MIGRATIONS = ROOT / "infra" / "supabase" / "migrations"
 
 
 class SupabaseMigrationContractTests(unittest.TestCase):
-    def test_scheduler_extensions_are_enabled_idempotently_in_live_schemas(self):
+    def test_historical_scheduler_extensions_match_applied_ddl(self):
         source = (
             MIGRATIONS
             / "20261002224150_enable_version_watch_scheduler_extensions.sql"
@@ -24,10 +24,10 @@ class SupabaseMigrationContractTests(unittest.TestCase):
             "create extension if not exists pg_net with schema extensions;",
             source.lower(),
         )
-        self.assertIn(
-            "create extension if not exists supabase_vault with schema vault;",
-            source.lower(),
-        )
+        self.assertIn("grant usage on schema cron to postgres;", source.lower())
+        self.assertIn("grant all privileges on all tables in schema cron to postgres;", source.lower())
+        # Vault exists live, but its installation was not in this ledger entry.
+        self.assertNotIn("create extension if not exists supabase_vault", source.lower())
 
     def test_version_watch_schedule_is_vault_backed_and_reproducible(self):
         source = (
@@ -35,10 +35,8 @@ class SupabaseMigrationContractTests(unittest.TestCase):
             / "20261002224159_schedule_version_watch.sql"
         ).read_text(encoding="utf-8")
 
-        self.assertLess(
-            source.index("cron.unschedule"),
-            source.index("cron.schedule("),
-        )
+        # Preserve the original historical statement, not an idempotent rewrite.
+        self.assertNotIn("cron.unschedule", source)
         self.assertIn("'aun-version-watch'", source)
         self.assertIn("'43 */6 * * *'", source)
         self.assertIn(
@@ -81,7 +79,7 @@ class SupabaseMigrationContractTests(unittest.TestCase):
             "grant select on table public.underwriting_rate_events to authenticated;",
             source.lower(),
         )
-        self.assertIn('drop policy if exists "underwriting rate admin select"', source.lower())
+        self.assertNotIn('drop policy if exists "underwriting rate admin select"', source.lower())
         self.assertIn("for select", source.lower())
         self.assertIn("to authenticated", source.lower())
         self.assertIn("using ((select public.is_aun_admin()))", source.lower())
@@ -115,7 +113,9 @@ class SupabaseMigrationContractTests(unittest.TestCase):
 
         self.assertIn("RECONCILIATION_INCOMPLETE", readme)
         self.assertIn("20261002223225", readme)
-        self.assertIn("Two rows are named version_watch_and_notifications", readme)
+        self.assertIn("20261002223438", readme)
+        self.assertIn("same SQL after removing only leading full-line comments", readme)
+        self.assertIn("MIGRATION_SOURCE_RECONCILED=NO", readme)
         self.assertIn("must not be counted as an applied migration", readme)
         self.assertIn("Do not replay production history.", readme)
 
