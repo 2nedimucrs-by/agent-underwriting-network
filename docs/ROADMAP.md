@@ -70,8 +70,9 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] live analytics inserts observed
 - [x] admin metrics verified under authenticated RLS
 - [x] Cloudflare Web Analytics token configured; deployed runtime previously verified beacon ON
-- [ ] retention/recovery automation
-- [ ] backup/export/recovery drill
+- [x] privacy retention automation
+- [x] authenticated account data export
+- [ ] backup/recovery drill
 
 ## Phase 4 — Distribution
 
@@ -96,7 +97,8 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [ ] external API keys/rate limits
 - [ ] organization policy overrides
 - [ ] private agent registry
-- [ ] audit export
+- [x] user account data export
+- [ ] organization underwriting audit export
 - [ ] usage metering
 - [ ] pricing/plan gates that never alter evidence truth
 - [ ] first paid B2B pilot delivered and accepted; seller and payment-route gates verified (see [FINISH_PLAN.md](./FINISH_PLAN.md))
@@ -112,7 +114,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] RLS init-plan performance findings cleared
 - [ ] live user-session Edge Function smoke tests
 - [ ] abuse/rate-limit tests
-- [ ] backup/export/recovery drill
+- [ ] backup/recovery drill
 - [ ] accessibility/mobile/browser acceptance
 - [ ] private alpha customer evidence
 - [ ] jurisdiction-specific legal review
