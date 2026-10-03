@@ -54,6 +54,10 @@ class SupabaseMigrationContractTests(unittest.TestCase):
                 re.IGNORECASE | re.DOTALL,
             ),
         )
+        self.assertIn("'source', 'supabase-cron'", source)
+        self.assertIn("'scheduled_at', now()", source)
+        self.assertNotIn("'trigger', 'cron'", source)
+        self.assertNotIn("'run_at', now()", source)
         self.assertNotIn("Authorization", source)
         self.assertNotRegex(source, r"(?i)sb_secret_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]{10,}")
         self.assertNotRegex(source, r"'x-aun-cron-token'\s*,\s*'[^']{24,}'")
