@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/external-benchmark-pydantic-ai.yml"
       - "scripts/external_benchmarks/pydantic_ai_structured.py"
+      - "scripts/external_benchmarks/pydantic_ai_file_lookup.py"
 
 permissions:
   contents: read
@@ -54,7 +55,7 @@ jobs:
           set -euo pipefail
           python -m pip install --only-binary=:all: "${PYDANTIC_AI_WHEEL}"
 
-      - name: Execute bounded framework receipt
+      - name: Execute structured-extraction framework receipt
         shell: bash
         run: |
           set -euo pipefail
@@ -73,13 +74,48 @@ jobs:
           assert receipt["passed"] is True
           assert len(receipt["receipt_sha256"]) == 64
           assert payload["execution"]["allow_model_requests"] is False
-          print("external benchmark receipt: PASS")
+          print("external structured-extraction receipt: PASS")
           PY
 
-      - name: Publish receipt artifact
+      - name: Publish structured-extraction receipt artifact
         uses: actions/upload-artifact@v4
         with:
           name: aun-pydantic-ai-structured-receipt
           path: /tmp/aun-pydantic-ai-structured-receipt.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Execute read-only-file-lookup framework receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/external_benchmarks/pydantic_ai_file_lookup.py \
+            --artifact-hash "${PYDANTIC_AI_WHEEL_SHA256}" \
+            --package-version "${PYDANTIC_AI_VERSION}" \
+            --release-tag "${PYDANTIC_AI_RELEASE_TAG}" \
+            --output /tmp/aun-pydantic-ai-file-lookup-receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("/tmp/aun-pydantic-ai-file-lookup-receipt.json")
+          payload = json.loads(path.read_text())
+          receipt = payload["receipt"]
+          assert receipt["passed"] is True
+          assert receipt["details"]["observed_answer"] == "ORBIT"
+          assert receipt["details"]["observed_writes"] == []
+          assert payload["execution"]["observed_tool_calls"] == ["read_project_readme"]
+          assert payload["execution"]["fixture_content_returned"] is True
+          assert payload["execution"]["filesystem_writes"] == 0
+          assert payload["execution"]["allow_model_requests"] is False
+          assert len(receipt["receipt_sha256"]) == 64
+          print("external read-only-file-lookup receipt: PASS")
+          PY
+
+      - name: Publish read-only-file-lookup receipt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aun-pydantic-ai-file-lookup-receipt
+          path: /tmp/aun-pydantic-ai-file-lookup-receipt.json
           if-no-files-found: error
           retention-days: 30
