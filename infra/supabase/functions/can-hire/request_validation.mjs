@@ -92,11 +92,12 @@ export function parseCanHireJson(raw) {
  * @returns {Promise<{ ok: true, value: string } | { ok: false, status: number, error: string }>}
  */
 export async function readBoundedBody(stream, contentLength) {
+  let declaredLength = null;
   if (contentLength !== null) {
-    if (!/^\\d+$/.test(contentLength)) {
+    if (!/^[0-9]+$/.test(contentLength)) {
       return { ok: false, status: 400, error: "content length is invalid" };
     }
-    const declaredLength = Number(contentLength);
+    declaredLength = Number(contentLength);
     if (!Number.isSafeInteger(declaredLength)) {
       return { ok: false, status: 400, error: "content length is invalid" };
     }
@@ -133,6 +134,10 @@ export async function readBoundedBody(stream, contentLength) {
     return { ok: false, status: 400, error: "request body could not be read" };
   } finally {
     reader.releaseLock();
+  }
+
+  if (declaredLength !== null && totalBytes !== declaredLength) {
+    return { ok: false, status: 400, error: "content length does not match request body" };
   }
 
   const bytes = new Uint8Array(totalBytes);
