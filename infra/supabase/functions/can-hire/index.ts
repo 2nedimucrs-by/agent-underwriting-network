@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { matchesPinnedCard, parseCanHireJson } from "./request_validation.mjs";
+import { matchesPinnedCard, parseCanHireJson, readBoundedBody } from "./request_validation.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -74,8 +74,9 @@ Deno.serve(async (req) => {
       return json({ error: "invalid session" }, 401);
     }
 
-    const rawBody = await req.text();
-    const parsed = parseCanHireJson(rawBody);
+    const rawBody = await readBoundedBody(req.body, req.headers.get("Content-Length"));
+    if (!rawBody.ok) return json({ error: rawBody.error }, rawBody.status);
+    const parsed = parseCanHireJson(rawBody.value);
     if (!parsed.ok) return json({ error: parsed.error }, parsed.status);
 
     const { agent_id: agentId, task_type: taskType, version_commit_sha: versionCommitSha, limits: requested } = parsed.value

@@ -84,6 +84,71 @@ export function parseCanHireJson(raw) {
 }
 
 
+
+/**
+ * Read an HTTP body without buffering beyond the configured request limit.
+ * @param {ReadableStream<Uint8Array> | null} stream
+ * @param {string | null} contentLength
+ * @returns {Promise<{ ok: true, value: string } | { ok: false, status: number, error: string }>}
+ */
+export async function readBoundedBody(stream, contentLength) {
+  if (contentLength !== null) {
+    if (!/^\\d+$/.test(contentLength)) {
+      return { ok: false, status: 400, error: "content length is invalid" };
+    }
+    const declaredLength = Number(contentLength);
+    if (!Number.isSafeInteger(declaredLength)) {
+      return { ok: false, status: 400, error: "content length is invalid" };
+    }
+    if (declaredLength > MAX_BODY_BYTES) {
+      return { ok: false, status: 413, error: "request body is too large" };
+    }
+  }
+
+  if (stream === null) return { ok: true, value: "" };
+
+  const reader = stream.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!(value instanceof Uint8Array)) {
+        await reader.cancel();
+        return { ok: false, status: 400, error: "request body must contain bytes" };
+      }
+      if (totalBytes + value.byteLength > MAX_BODY_BYTES) {
+        try {
+          await reader.cancel();
+        } catch {
+          // The body is already being rejected; cancellation is best effort.
+        }
+        return { ok: false, status: 413, error: "request body is too large" };
+      }
+      chunks.push(value);
+      totalBytes += value.byteLength;
+    }
+  } catch {
+    return { ok: false, status: 400, error: "request body could not be read" };
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    return { ok: true, value: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
+  } catch {
+    return { ok: false, status: 400, error: "request body must be valid UTF-8" };
+  }
+}
+
 /**
  * Ensure a decision is bound to the requested repository and immutable commit.
  * @param {string} agentId

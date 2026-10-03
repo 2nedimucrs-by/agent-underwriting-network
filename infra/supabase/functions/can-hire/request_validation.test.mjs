@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { matchesPinnedCard, parseCanHireJson } from "./request_validation.mjs";
+import { matchesPinnedCard, parseCanHireJson, readBoundedBody } from "./request_validation.mjs";
 
 const valid = {
   agent_id: "github:browser-use/browser-use",
@@ -92,3 +92,55 @@ test("rejects oversized bodies with 413", () => {
   const raw = JSON.stringify(valid).padEnd(8193, " ");
   assert.equal(parseCanHireJson(raw).status, 413);
 });
+
+test("rejects an oversized declared body before reading its stream", async () => {
+  let readerRequested = false;
+  const stream = new ReadableStream({
+    start(controller) { controller.enqueue(new Uint8Array([1])); },
+  });
+  const body = {
+    getReader() {
+      readerRequested = true;
+      return stream.getReader();
+    },
+  };
+  const result = await readBoundedBody(body, "8193");
+  assert.equal(result.status, 413);
+  assert.equal(readerRequested, false);
+});
+
+test("cancels a streaming body as soon as its bytes exceed the limit", async () => {
+  let cancelled = false;
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array(8192));
+      controller.enqueue(new Uint8Array([1]));
+    },
+    cancel() { cancelled = true; },
+  });
+  const result = await readBoundedBody(stream, null);
+  assert.equal(result.status, 413);
+  assert.equal(cancelled, true);
+});
+
+test("reads bounded request bytes and rejects invalid UTF-8", async () => {
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode('{"ok":true}'));
+      controller.close();
+    },
+  });
+  assert.deepEqual(await readBoundedBody(body, null), {
+    ok: true,
+    value: '{"ok":true}',
+  });
+
+  const invalidUtf8 = new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array([0xff]));
+      controller.close();
+    },
+  });
+  assert.equal((await readBoundedBody(invalidUtf8, null)).status, 400);
+});
+
