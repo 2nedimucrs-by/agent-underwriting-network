@@ -1,0 +1,85 @@
+name: External Benchmark — PydanticAI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/external-benchmark-pydantic-ai.yml"
+      - "scripts/external_benchmarks/pydantic_ai_structured.py"
+
+permissions:
+  contents: read
+
+jobs:
+  structured-extraction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYDANTIC_AI_VERSION: "2.53.0"
+      PYDANTIC_AI_RELEASE_TAG: "v2.53.0"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      OTEL_SDK_DISABLED: "true"
+
+    steps:
+      - name: Checkout AUN without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install AUN benchmark harness
+        run: python -m pip install -e .
+
+      - name: Download exact PydanticAI wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/aun-wheel
+          python -m pip download \
+            --only-binary=:all: \
+            --no-deps \
+            "pydantic-ai-slim==${PYDANTIC_AI_VERSION}" \
+            --dest /tmp/aun-wheel
+          WHEEL="$(find /tmp/aun-wheel -maxdepth 1 -type f -name '*.whl' | head -n 1)"
+          test -n "${WHEEL}"
+          echo "PYDANTIC_AI_WHEEL=${WHEEL}" >> "${GITHUB_ENV}"
+          echo "PYDANTIC_AI_WHEEL_SHA256=$(sha256sum "${WHEEL}" | awk '{print $1}')" >> "${GITHUB_ENV}"
+
+      - name: Install exact wheel with binary-only dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --only-binary=:all: "${PYDANTIC_AI_WHEEL}"
+
+      - name: Execute bounded framework receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/external_benchmarks/pydantic_ai_structured.py \
+            --artifact-hash "${PYDANTIC_AI_WHEEL_SHA256}" \
+            --package-version "${PYDANTIC_AI_VERSION}" \
+            --release-tag "${PYDANTIC_AI_RELEASE_TAG}" \
+            --output /tmp/aun-pydantic-ai-structured-receipt.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("/tmp/aun-pydantic-ai-structured-receipt.json")
+          payload = json.loads(path.read_text())
+          receipt = payload["receipt"]
+          assert receipt["passed"] is True
+          assert len(receipt["receipt_sha256"]) == 64
+          assert payload["execution"]["allow_model_requests"] is False
+          print("external benchmark receipt: PASS")
+          PY
+
+      - name: Publish receipt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aun-pydantic-ai-structured-receipt
+          path: /tmp/aun-pydantic-ai-structured-receipt.json
+          if-no-files-found: error
+          retention-days: 30
