@@ -2,6 +2,16 @@
 
 Supabase provides the optional authenticated product backend for the public GitHub Pages evidence network.
 
+## Production migration source status
+
+**Status: RECONCILIATION_INCOMPLETE (read-only audit, 2026-10-03).** The production Supabase ledger contains 16 rows. Two rows are named version_watch_and_notifications; the first is version 20261002223225. The repository's 001_initial.sql has no matching ledger name/version, so its exact production migration identity is not proven. Do not infer the mapping from table presence or rename ledger history to fit the files.
+
+The four timestamped files added in this change restore four later ledger entries by their exact version/name. They do not resolve the duplicate history or the unlisted initial baseline. The repository's 012_advisor_cleanup.sql also has no separate named row in the live ledger and overlaps the actor-index and rate-event-policy SQL represented by timestamped sources; it must not be counted as an applied migration.
+
+The live scheduler was verified read-only: pg_cron, pg_net, and Supabase Vault are installed; aun-version-watch is active on 43 */6 * * *; its command references the expected Vault secret name without exposing its value; and successful job runs exist. The timestamped scheduler sources in this PR track that configuration. No production DDL or migration-ledger changes were applied.
+
+**Do not replay production history.** Full source reconciliation remains open until an authoritative record or exact original artifact resolves the initial baseline and duplicate version_watch_and_notifications entries, and the complete ledger-to-source map is independently checked. Keep the live database unchanged during that investigation.
+
 ## Migration order
 
 **Fresh-project bootstrap only:** the ordered SQL list below is for a new, dedicated Supabase project. Do not replay it against the existing production project. The timestamped files restore migrations already recorded as applied in production, and the numbered files are historical sources; do not rerun `001_initial.sql` or these restored migrations during source reconciliation. Any future production DDL requires a separately reviewed deployment plan and verification against the live migration ledger.
