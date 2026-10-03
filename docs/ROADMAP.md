@@ -75,7 +75,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] Cloudflare Web Analytics token configured; deployed runtime previously verified beacon ON
 - [x] privacy retention automation
 - [x] authenticated account data export
-- [ ] reconcile all 16 live Supabase migration-ledger rows with tracked migration SQL; explain the unlisted 001_initial baseline and duplicate version_watch_and_notifications entries, then verify schema/permissions against source
+- [ ] reconcile all 16 live Supabase migration-ledger rows with tracked migration SQL; explain the unlisted 001_initial baseline, duplicate version_watch_and_notifications entries, and untracked version-watch extension/schedule SQL; verify schema/permissions and active scheduler against source
 - [ ] backup/recovery drill
 
 ## Phase 4 — Distribution

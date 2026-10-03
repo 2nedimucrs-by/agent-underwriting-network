@@ -223,7 +223,7 @@ Release gates:
 - underwriting fail-closed and rate-limit concurrency/outage tests
 - no critical security findings
 - recovery procedure tested
-- live Supabase migration ledger reconciled to tracked source; explain the initial-baseline and duplicate-history entries and verify schema/permissions before claiming source sync
+- live Supabase migration ledger reconciled to tracked source; explain the initial-baseline and duplicate-history entries, add tracked source for the live version-watch extension/schedule migrations, and verify schema/permissions before claiming source sync
 
 ## Phase I — Verified Labor Exchange — GATED
 
