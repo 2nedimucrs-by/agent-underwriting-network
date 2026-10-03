@@ -1,0 +1,145 @@
+{
+  "captured_at": "2026-10-03",
+  "project_ref": "sfplbbnratiznbipniez",
+  "source": "supabase_migrations.schema_migrations (read-only)",
+  "rows": [
+    {
+      "version": "20261002223225",
+      "name": "version_watch_and_notifications",
+      "statements": [
+        "-- Persistent version history + in-app notification queue.\n-- Apply after 001_initial.sql.\n\ncreate table if not exists public.agent_version_snapshots (\n  id uuid primary key default gen_random_uuid(),\n  agent_id text not null,\n  version_hash text not null,\n  source_url text,\n  observed_at timestamptz not null default now(),\n  unique (agent_id, version_hash)\n);\n\ncreate index if not exists agent_version_snapshots_agent_time_idx\n  on public.agent_version_snapshots (agent_id, observed_at desc);\n\ncreate table if not exists public.version_drift_events (\n  id uuid primary key default gen_random_uuid(),\n  agent_id text not null,\n  previous_hash text,\n  current_hash text not null,\n  detected_at timestamptz not null default now(),\n  metadata jsonb not null default '{}'::jsonb,\n  unique (agent_id, current_hash)\n);\n\ncreate index if not exists version_drift_events_time_idx\n  on public.version_drift_events (detected_at desc);\n\ncreate table if not exists public.user_notifications (\n  id uuid primary key default gen_random_uuid(),\n  user_id uuid not null references auth.users(id) on delete cascade,\n  event_type text not null\n    check (event_type in (\n      'VERSION_DRIFT',\n      'EVIDENCE_CHANGED',\n      'SECURITY_FINDING',\n      'TRUST_CARD_CHANGED'\n    )),\n  agent_id text not null,\n  title text not null,\n  body text not null,\n  metadata jsonb not null default '{}'::jsonb,\n  dedup_key text not null,\n  read_at timestamptz,\n  created_at timestamptz not null default now(),\n  unique (user_id, dedup_key)\n);\n\ncreate index if not exists user_notifications_user_time_idx\n  on public.user_notifications (user_id, created_at desc);\n\nalter table public.agent_version_snapshots enable row level security;\nalter table public.version_drift_events enable row level security;\nalter table public.user_notifications enable row level security;\n\nrevoke all on table public.agent_version_snapshots from anon, authenticated;\ngrant select on table public.agent_version_snapshots to authenticated;\n\nrevoke all on table public.version_drift_events from anon, authenticated;\ngrant select on table public.version_drift_events to authenticated;\n\nrevoke all on table public.user_notifications from anon, authenticated;\ngrant select, update, delete on table public.user_notifications to authenticated;\n\ndrop policy if exists \"version snapshots admin select\"\n  on public.agent_version_snapshots;\ncreate policy \"version snapshots admin select\"\non public.agent_version_snapshots for select\nto authenticated\nusing (public.is_aun_admin());\n\ndrop policy if exists \"drift events admin select\"\n  on public.version_drift_events;\ncreate policy \"drift events admin select\"\non public.version_drift_events for select\nto authenticated\nusing (public.is_aun_admin());\n\ndrop policy if exists \"notifications own select\"\n  on public.user_notifications;\ncreate policy \"notifications own select\"\non public.user_notifications for select\nto authenticated\nusing (user_id = auth.uid());\n\ndrop policy if exists \"notifications own update\"\n  on public.user_notifications;\ncreate policy \"notifications own update\"\non public.user_notifications for update\nto authenticated\nusing (user_id = auth.uid())\nwith check (user_id = auth.uid());\n\ndrop policy if exists \"notifications own delete\"\n  on public.user_notifications;\ncreate policy \"notifications own delete\"\non public.user_notifications for delete\nto authenticated\nusing (user_id = auth.uid());"
+      ],
+      "statements_sha256": "fa1571cd38ac95b4d3c4ee25e7e357d7c48531c1614f9a0d514256d7cc26faab"
+    },
+    {
+      "version": "20261002223424",
+      "name": "security_definer_acl_hardening",
+      "statements": [
+        "\nrevoke execute on function public.admin_dashboard_metrics() from anon;\nrevoke execute on function public.admin_top_agents(integer) from anon;\nrevoke execute on function public.is_aun_admin() from anon;\nrevoke execute on function public.handle_new_aun_user() from anon, authenticated;\nrevoke execute on function public.rls_auto_enable() from public, anon, authenticated;\n\ngrant execute on function public.admin_dashboard_metrics() to authenticated;\ngrant execute on function public.admin_top_agents(integer) to authenticated;\ngrant execute on function public.is_aun_admin() to authenticated;\n"
+      ],
+      "statements_sha256": "5fa36a4f5a11cf1ef041e565376d944f22d978a429d842241cfd80c641f53f06"
+    },
+    {
+      "version": "20261002223438",
+      "name": "version_watch_and_notifications",
+      "statements": [
+        "\ncreate table if not exists public.agent_version_snapshots (\n  id uuid primary key default gen_random_uuid(),\n  agent_id text not null,\n  version_hash text not null,\n  source_url text,\n  observed_at timestamptz not null default now(),\n  unique (agent_id, version_hash)\n);\n\ncreate index if not exists agent_version_snapshots_agent_time_idx\n  on public.agent_version_snapshots (agent_id, observed_at desc);\n\ncreate table if not exists public.version_drift_events (\n  id uuid primary key default gen_random_uuid(),\n  agent_id text not null,\n  previous_hash text,\n  current_hash text not null,\n  detected_at timestamptz not null default now(),\n  metadata jsonb not null default '{}'::jsonb,\n  unique (agent_id, current_hash)\n);\n\ncreate index if not exists version_drift_events_time_idx\n  on public.version_drift_events (detected_at desc);\n\ncreate table if not exists public.user_notifications (\n  id uuid primary key default gen_random_uuid(),\n  user_id uuid not null references auth.users(id) on delete cascade,\n  event_type text not null\n    check (event_type in (\n      'VERSION_DRIFT',\n      'EVIDENCE_CHANGED',\n      'SECURITY_FINDING',\n      'TRUST_CARD_CHANGED'\n    )),\n  agent_id text not null,\n  title text not null,\n  body text not null,\n  metadata jsonb not null default '{}'::jsonb,\n  dedup_key text not null,\n  read_at timestamptz,\n  created_at timestamptz not null default now(),\n  unique (user_id, dedup_key)\n);\n\ncreate index if not exists user_notifications_user_time_idx\n  on public.user_notifications (user_id, created_at desc);\n\nalter table public.agent_version_snapshots enable row level security;\nalter table public.version_drift_events enable row level security;\nalter table public.user_notifications enable row level security;\n\nrevoke all on table public.agent_version_snapshots from anon, authenticated;\ngrant select on table public.agent_version_snapshots to authenticated;\n\nrevoke all on table public.version_drift_events from anon, authenticated;\ngrant select on table public.version_drift_events to authenticated;\n\nrevoke all on table public.user_notifications from anon, authenticated;\ngrant select, update, delete on table public.user_notifications to authenticated;\n\ndrop policy if exists \"version snapshots admin select\"\n  on public.agent_version_snapshots;\ncreate policy \"version snapshots admin select\"\non public.agent_version_snapshots for select\nto authenticated\nusing (public.is_aun_admin());\n\ndrop policy if exists \"drift events admin select\"\n  on public.version_drift_events;\ncreate policy \"drift events admin select\"\non public.version_drift_events for select\nto authenticated\nusing (public.is_aun_admin());\n\ndrop policy if exists \"notifications own select\"\n  on public.user_notifications;\ncreate policy \"notifications own select\"\non public.user_notifications for select\nto authenticated\nusing (user_id = auth.uid());\n\ndrop policy if exists \"notifications own update\"\n  on public.user_notifications;\ncreate policy \"notifications own update\"\non public.user_notifications for update\nto authenticated\nusing (user_id = auth.uid())\nwith check (user_id = auth.uid());\n\ndrop policy if exists \"notifications own delete\"\n  on public.user_notifications;\ncreate policy \"notifications own delete\"\non public.user_notifications for delete\nto authenticated\nusing (user_id = auth.uid());\n"
+      ],
+      "statements_sha256": "2c73d9d473be34abc9029f15d1095807c8ab2e9c24cd8cb11f2988af912dbf16"
+    },
+    {
+      "version": "20261002223739",
+      "name": "admin_rpc_security_invoker",
+      "statements": [
+        "\nalter function public.is_aun_admin() security invoker;\nalter function public.admin_dashboard_metrics() security invoker;\nalter function public.admin_top_agents(integer) security invoker;\n"
+      ],
+      "statements_sha256": "27ae695c00140cebfa607c727895a4f293bfc5504f7662c4ddb16f287076bf6c"
+    },
+    {
+      "version": "20261002223915",
+      "name": "rls_initplan_and_fk_indexes",
+      "statements": [
+        "\ncreate index if not exists account_deletion_requests_user_idx\n  on public.account_deletion_requests(user_id);\n\ncreate index if not exists agent_alerts_user_idx\n  on public.agent_alerts(user_id);\n\ncreate index if not exists analytics_events_user_idx\n  on public.analytics_events(user_id);\n\ndrop policy if exists \"profile own select\" on public.profiles;\ncreate policy \"profile own select\"\non public.profiles for select to authenticated\nusing (\n  user_id = (select auth.uid())\n  or (select public.is_aun_admin())\n);\n\ndrop policy if exists \"profile own update\" on public.profiles;\ncreate policy \"profile own update\"\non public.profiles for update to authenticated\nusing (user_id = (select auth.uid()))\nwith check (user_id = (select auth.uid()));\n\ndrop policy if exists \"admin user self inspect\" on public.admin_users;\ncreate policy \"admin user self inspect\"\non public.admin_users for select to authenticated\nusing (user_id = (select auth.uid()));\n\ndrop policy if exists \"claim own select\" on public.agent_claims;\ncreate policy \"claim own select\"\non public.agent_claims for select to authenticated\nusing (\n  user_id = (select auth.uid())\n  or (select public.is_aun_admin())\n);\n\ndrop policy if exists \"claim own insert\" on public.agent_claims;\ncreate policy \"claim own insert\"\non public.agent_claims for insert to authenticated\nwith check (\n  user_id = (select auth.uid())\n  and status = 'PENDING_GITHUB_VERIFICATION'\n);\n\ndrop policy if exists \"claim admin update\" on public.agent_claims;\ncreate policy \"claim admin update\"\non public.agent_claims for update to authenticated\nusing ((select public.is_aun_admin()))\nwith check ((select public.is_aun_admin()));\n\ndrop policy if exists \"saved own all\" on public.saved_agents;\ncreate policy \"saved own all\"\non public.saved_agents for all to authenticated\nusing (user_id = (select auth.uid()))\nwith check (user_id = (select auth.uid()));\n\ndrop policy if exists \"alerts own all\" on public.agent_alerts;\ncreate policy \"alerts own all\"\non public.agent_alerts for all to authenticated\nusing (user_id = (select auth.uid()))\nwith check (user_id = (select auth.uid()));\n\ndrop policy if exists \"analytics anonymous insert\" on public.analytics_events;\ncreate policy \"analytics anonymous insert\"\non public.analytics_events for insert to anon, authenticated\nwith check (\n  user_id is null\n  or user_id = (select auth.uid())\n);\n\ndrop policy if exists \"analytics admin select\" on public.analytics_events;\ncreate policy \"analytics admin select\"\non public.analytics_events for select to authenticated\nusing ((select public.is_aun_admin()));\n\ndrop policy if exists \"deletion own insert\" on public.account_deletion_requests;\ncreate policy \"deletion own insert\"\non public.account_deletion_requests for insert to authenticated\nwith check (\n  user_id = (select auth.uid())\n  and status = 'PENDING'\n);\n\ndrop policy if exists \"deletion own select\" on public.account_deletion_requests;\ncreate policy \"deletion own select\"\non public.account_deletion_requests for select to authenticated\nusing (\n  user_id = (select auth.uid())\n  or (select public.is_aun_admin())\n);\n\ndrop policy if exists \"suppression admin all\" on public.outreach_suppression;\ncreate policy \"suppression admin all\"\non public.outreach_suppression for all to authenticated\nusing ((select public.is_aun_admin()))\nwith check ((select public.is_aun_admin()));\n\ndrop policy if exists \"version snapshots admin select\"\n  on public.agent_version_snapshots;\ncreate policy \"version snapshots admin select\"\non public.agent_version_snapshots for select to authenticated\nusing ((select public.is_aun_admin()));\n\ndrop policy if exists \"drift events admin select\"\n  on public.version_drift_events;\ncreate policy \"drift events admin select\"\non public.version_drift_events for select to authenticated\nusing ((select public.is_aun_admin()));\n\ndrop policy if exists \"notifications own select\"\n  on public.user_notifications;\ncreate policy \"notifications own select\"\non public.user_notifications for select to authenticated\nusing (user_id = (select auth.uid()));\n\ndrop policy if exists \"notifications own update\"\n  on public.user_notifications;\ncreate policy \"notifications own update\"\non public.user_notifications for update to authenticated\nusing (user_id = (select auth.uid()))\nwith check (user_id = (select auth.uid()));\n\ndrop policy if exists \"notifications own delete\"\n  on public.user_notifications;\ncreate policy \"notifications own delete\"\non public.user_notifications for delete to authenticated\nusing (user_id = (select auth.uid()));\n"
+      ],
+      "statements_sha256": "8c2b2f593c60b6fedd0db6f0cf157460222d62fc26947c0d4df14924c27c1817"
+    },
+    {
+      "version": "20261002224150",
+      "name": "enable_version_watch_scheduler_extensions",
+      "statements": [
+        "\ncreate extension if not exists pg_net with schema extensions;\ncreate extension if not exists pg_cron with schema pg_catalog;\n\ngrant usage on schema cron to postgres;\ngrant all privileges on all tables in schema cron to postgres;\n"
+      ],
+      "statements_sha256": "ae2c966b97a0564c41c579853cf706b465036be20c2b54dc6b5394825d97ed4b",
+      "exact_source": "migrations/20261002224150_enable_version_watch_scheduler_extensions.sql"
+    },
+    {
+      "version": "20261002224159",
+      "name": "schedule_version_watch",
+      "statements": [
+        "\nselect cron.schedule(\n  'aun-version-watch',\n  '43 */6 * * *',\n  $cron$\n  select net.http_post(\n    url := 'https://sfplbbnratiznbipniez.supabase.co/functions/v1/version-watch',\n    headers := jsonb_build_object(\n      'Content-Type', 'application/json',\n      'x-aun-cron-token',\n      (select decrypted_secret\n       from vault.decrypted_secrets\n       where name = 'aun_version_watch_token')\n    ),\n    body := jsonb_build_object(\n      'source', 'supabase-cron',\n      'scheduled_at', now()\n    ),\n    timeout_milliseconds := 15000\n  );\n  $cron$\n);\n"
+      ],
+      "statements_sha256": "d4af31b88547508ea457e3294b1a6350580dd678886a7a268a00f8b285546ddd",
+      "exact_source": "migrations/20261002224159_schedule_version_watch.sql"
+    },
+    {
+      "version": "20261002224806",
+      "name": "claim_challenge_and_audit",
+      "statements": [
+        "\nalter table public.agent_claims\n  add column if not exists challenge_token text,\n  add column if not exists challenge_issued_at timestamptz,\n  add column if not exists challenge_expires_at timestamptz;\n\ncreate table if not exists public.claim_audit_events (\n  id uuid primary key default gen_random_uuid(),\n  claim_id uuid not null references public.agent_claims(id) on delete cascade,\n  actor_user_id uuid references auth.users(id) on delete set null,\n  event_type text not null,\n  metadata jsonb not null default '{}'::jsonb,\n  created_at timestamptz not null default now()\n);\n\ncreate index if not exists claim_audit_events_claim_time_idx\n  on public.claim_audit_events(claim_id, created_at desc);\n\nalter table public.claim_audit_events enable row level security;\n\nrevoke all on table public.claim_audit_events from anon, authenticated;\ngrant select on table public.claim_audit_events to authenticated;\n\ndrop policy if exists \"claim audit owner or admin select\"\n  on public.claim_audit_events;\ncreate policy \"claim audit owner or admin select\"\non public.claim_audit_events for select to authenticated\nusing (\n  exists (\n    select 1\n    from public.agent_claims c\n    where c.id = claim_audit_events.claim_id\n      and (\n        c.user_id = (select auth.uid())\n        or (select public.is_aun_admin())\n      )\n  )\n);\n"
+      ],
+      "statements_sha256": "922cb35626466a4d295a57ddc13e94fc6fcafa24086da1d7adca1c54fbde18f0"
+    },
+    {
+      "version": "20261002224856",
+      "name": "backend_service_role_grants",
+      "statements": [
+        "\ngrant select on table public.profiles to service_role;\ngrant select, update on table public.agent_claims to service_role;\ngrant select, insert on table public.claim_audit_events to service_role;\n\ngrant select, insert, update on table public.agent_version_snapshots to service_role;\ngrant select, insert, update on table public.version_drift_events to service_role;\ngrant select on table public.agent_alerts to service_role;\ngrant select, insert, update on table public.user_notifications to service_role;\n"
+      ],
+      "statements_sha256": "b282f6de30280d5ee3d47dc541bc6bea3a91bf848f6de23325f20cd912dbd08c"
+    },
+    {
+      "version": "20261002225025",
+      "name": "claim_status_audit_trigger",
+      "statements": [
+        "\ncreate or replace function public.log_agent_claim_audit()\nreturns trigger\nlanguage plpgsql\nsecurity definer\nset search_path = public\nas $aun$\nbegin\n  if tg_op = 'INSERT' then\n    insert into public.claim_audit_events(\n      claim_id,\n      actor_user_id,\n      event_type,\n      metadata\n    )\n    values (\n      new.id,\n      auth.uid(),\n      'CLAIM_CREATED',\n      jsonb_build_object(\n        'status', new.status,\n        'verification_method', new.verification_method\n      )\n    );\n    return new;\n  end if;\n\n  if\n    new.status is distinct from old.status\n    or new.verification_method is distinct from old.verification_method\n  then\n    insert into public.claim_audit_events(\n      claim_id,\n      actor_user_id,\n      event_type,\n      metadata\n    )\n    values (\n      new.id,\n      auth.uid(),\n      'CLAIM_STATE_CHANGED',\n      jsonb_build_object(\n        'previous_status', old.status,\n        'status', new.status,\n        'previous_verification_method', old.verification_method,\n        'verification_method', new.verification_method\n      )\n    );\n  end if;\n\n  return new;\nend;\n$aun$;\n\nrevoke execute on function public.log_agent_claim_audit()\n  from public, anon, authenticated;\n\ndrop trigger if exists on_agent_claim_audit\n  on public.agent_claims;\n\ncreate trigger on_agent_claim_audit\nafter insert or update on public.agent_claims\nfor each row execute function public.log_agent_claim_audit();\n"
+      ],
+      "statements_sha256": "cda3c2902d1c48d62c2cb9dd44f8411a09d15127e1a34c30732b9d800329dda4"
+    },
+    {
+      "version": "20261002225524",
+      "name": "public_agent_index_cache",
+      "statements": [
+        "\ncreate table if not exists public.public_agent_index_cache (\n  cache_key text primary key,\n  payload jsonb not null,\n  source_url text not null,\n  observed_at timestamptz not null default now()\n);\n\nalter table public.public_agent_index_cache enable row level security;\n\nrevoke all on table public.public_agent_index_cache from anon, authenticated;\ngrant select on table public.public_agent_index_cache to anon, authenticated;\ngrant select, insert, update on table public.public_agent_index_cache to service_role;\n\ndrop policy if exists \"public agent index cache read\"\n  on public.public_agent_index_cache;\ncreate policy \"public agent index cache read\"\non public.public_agent_index_cache for select\nto anon, authenticated\nusing (true);\n"
+      ],
+      "statements_sha256": "38aec1df6f16d3d6673107415779aa3a9b1d622a960333cf4fcc5334f4d1d299"
+    },
+    {
+      "version": "20261002225742",
+      "name": "underwriting_rate_limits",
+      "statements": [
+        "\ncreate table if not exists public.underwriting_rate_events (\n  id uuid primary key default gen_random_uuid(),\n  user_id uuid not null references auth.users(id) on delete cascade,\n  agent_id text,\n  task_type text,\n  occurred_at timestamptz not null default now()\n);\n\ncreate index if not exists underwriting_rate_events_user_time_idx\n  on public.underwriting_rate_events(user_id, occurred_at desc);\n\nalter table public.underwriting_rate_events enable row level security;\n\nrevoke all on table public.underwriting_rate_events from anon, authenticated;\ngrant select, insert, delete on table public.underwriting_rate_events to service_role;\n\nselect cron.schedule(\n  'aun-underwriting-rate-retention',\n  '19 4 * * *',\n  $cron$\n    delete from public.underwriting_rate_events\n    where occurred_at < now() - interval '30 days';\n  $cron$\n);\n"
+      ],
+      "statements_sha256": "1af881e51db51d85c0b1a844826d705d68b18e192151a07eb01bb50787358973"
+    },
+    {
+      "version": "20261002230020",
+      "name": "claim_audit_actor_index",
+      "statements": [
+        "create index if not exists claim_audit_events_actor_user_idx on public.claim_audit_events(actor_user_id);"
+      ],
+      "statements_sha256": "b489cfac95c815727f494f02c30dc0afa52bd7791974fa2fe8deaaaba999dbcd",
+      "exact_source": "migrations/20261002230020_claim_audit_actor_index.sql"
+    },
+    {
+      "version": "20261002230030",
+      "name": "underwriting_rate_admin_visibility",
+      "statements": [
+        "\ngrant select on table public.underwriting_rate_events to authenticated;\n\ncreate policy \"underwriting rate admin select\"\non public.underwriting_rate_events\nfor select\nto authenticated\nusing ((select public.is_aun_admin()));\n"
+      ],
+      "statements_sha256": "4925d194af78eb803bf430932790c8231b233f6b17f5bace1e173e728eafe5a2",
+      "exact_source": "migrations/20261002230030_underwriting_rate_admin_visibility.sql"
+    },
+    {
+      "version": "20261002230329",
+      "name": "privacy_retention_cron",
+      "statements": [
+        "\nselect cron.schedule(\n  'aun-data-retention',\n  '37 4 * * *',\n  $cron$\n    delete from public.analytics_events\n    where occurred_at < now() - interval '90 days';\n\n    delete from public.user_notifications\n    where\n      (read_at is not null and read_at < now() - interval '90 days')\n      or created_at < now() - interval '180 days';\n\n    delete from public.account_deletion_requests\n    where status = 'COMPLETED'\n      and completed_at is not null\n      and completed_at < now() - interval '365 days';\n  $cron$\n);\n"
+      ],
+      "statements_sha256": "700ffc8b2c663659415ed48c5c025987a95b5915e9fb393931706187529c7c6e"
+    },
+    {
+      "version": "20261003014714",
+      "name": "underwriting_rate_limit_atomic",
+      "statements": [
+        "-- Serialize underwriting rate checks per authenticated user.\n-- SECURITY INVOKER is intentional: the Edge Function calls this with service_role,\n-- which already owns the narrowly scoped table privileges from migration 011.\n\ncreate function public.consume_underwriting_rate_limit(\n  p_user_id uuid,\n  p_agent_id text,\n  p_task_type text\n)\nreturns jsonb\nlanguage plpgsql\nset search_path = ''\nas $function$\ndeclare\n  v_now timestamptz;\n  v_minute_count bigint;\n  v_day_count bigint;\nbegin\n  if p_user_id is null then\n    raise exception 'p_user_id is required'\n      using errcode = '22004';\n  end if;\n\n  -- The lock is transaction-scoped. A waiter checks the counts only after the\n  -- previous request commits its event, so parallel requests cannot all pass.\n  perform pg_catalog.pg_advisory_xact_lock(\n    pg_catalog.hashtextextended(\n      'aun-underwriting-rate-limit:' || p_user_id::text,\n      0::bigint\n    )\n  );\n\n  -- clock_timestamp() is evaluated after any lock wait; now() would be stale\n  -- because it is fixed at transaction start.\n  v_now := pg_catalog.clock_timestamp();\n\n  select\n    pg_catalog.count(*) filter (\n      where occurred_at >= v_now - interval '1 minute'\n    ),\n    pg_catalog.count(*) filter (\n      where occurred_at >= v_now - interval '1 day'\n    )\n  into v_minute_count, v_day_count\n  from public.underwriting_rate_events\n  where user_id = p_user_id\n    and occurred_at >= v_now - interval '1 day';\n\n  if v_minute_count >= 30 or v_day_count >= 500 then\n    return pg_catalog.jsonb_build_object(\n      'allowed', false,\n      'retry_after_seconds',\n      case when v_minute_count >= 30 then 60 else 3600 end\n    );\n  end if;\n\n  insert into public.underwriting_rate_events (\n    user_id,\n    agent_id,\n    task_type\n  )\n  values (\n    p_user_id,\n    pg_catalog.left(p_agent_id, 256),\n    pg_catalog.left(p_task_type, 80)\n  );\n\n  return pg_catalog.jsonb_build_object(\n    'allowed', true,\n    'retry_after_seconds', 0\n  );\nend;\n$function$;\n\n-- The function is in the exposed public schema for RPC routing, so explicitly\n-- remove the default PUBLIC execute grant and allow only the backend role.\nrevoke all on function public.consume_underwriting_rate_limit(uuid, text, text)\n  from public, anon, authenticated;\ngrant execute on function public.consume_underwriting_rate_limit(uuid, text, text)\n  to service_role;\n"
+      ],
+      "statements_sha256": "8b94c7f1fc5f6553d3dc47f1535316821c9ffc5a0e24b1edd97af765b1758abb"
+    }
+  ],
+  "limitations": [
+    "Captured ledger source, not current-schema or original-baseline proof.",
+    "No initial baseline row exists in the captured ledger.",
+    "Historical statements are archival data; do not replay against production.",
+    "Hashes detect accidental changes; no independent signature or anchor is claimed."
+  ]
+}
