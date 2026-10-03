@@ -37,7 +37,7 @@ Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 - scanner failures represented explicitly rather than silently ignored
 - reproducible benchmark receipt protocol
 - canonical SHA-256 receipt self-check + timestamped receipt serialization
-- structured extraction + read-only file benchmark fixtures
+- structured-extraction, read-only-file, repository-read, browser-read, and MCP fixture contracts; CI uses a fake harness and is not third-party capability evidence
 
 Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner success does not create a global SAFE verdict.
 
