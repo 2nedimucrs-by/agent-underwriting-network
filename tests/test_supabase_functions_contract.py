@@ -35,8 +35,10 @@ class SupabaseFunctionContractTests(unittest.TestCase):
 
         self.assertIn("CHALLENGE_TTL_MS", source)
         self.assertIn(".github/agent-underwriting-claim.json", source)
-        self.assertIn("proof.claim_id === claim.id", source)
-        self.assertIn("proof.challenge === challengeToken", source)
+        self.assertIn("isChallengeProofValid", source)
+        self.assertIn("claimId: claim.id", source)
+        self.assertIn("challengeToken,", source)
+        self.assertIn("expiresAt: claim.challenge_expires_at", source)
 
     def test_terminal_claim_states_cannot_be_reverified_or_raced(self):
         source = (
@@ -48,10 +50,8 @@ class SupabaseFunctionContractTests(unittest.TestCase):
             / "index.ts"
         ).read_text(encoding="utf-8")
 
-        self.assertIn(
-            'claim.status !== "PENDING_GITHUB_VERIFICATION"',
-            source,
-        )
+        self.assertIn("classifyClaimStatus(claim.status)", source)
+        self.assertIn('claimDisposition === "terminal"', source)
         self.assertIn("claim is not pending verification", source)
         self.assertIn("async function updatePendingClaim(", source)
         self.assertIn(

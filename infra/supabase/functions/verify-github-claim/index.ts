@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { classifyClaimStatus, isChallengeProofValid } from "./claim-policy.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -13,7 +14,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
-    const jwt = authHeader.replace(/^Bearer\s+/i, "");
+    const jwt = authHeader.replace(/^Bearer\\s+/i, "");
     if (!jwt) return json({ error: "missing authorization" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -53,10 +54,11 @@ Deno.serve(async (req) => {
       return json({ error: "claim does not belong to user" }, 403);
     }
 
-    if (claim.status === "VERIFIED_MAINTAINER") {
+    const claimDisposition = classifyClaimStatus(claim.status);
+    if (claimDisposition === "already_verified") {
       return json({ status: claim.status, proof: "already_verified" }, 200);
     }
-    if (claim.status !== "PENDING_GITHUB_VERIFICATION") {
+    if (claimDisposition === "terminal") {
       return json({
         error: "claim is not pending verification",
         status: claim.status,
@@ -130,11 +132,13 @@ Deno.serve(async (req) => {
     if (challengeToken && existingExpiresAt > now) {
       const proof = await readPublicChallenge(repository);
 
-      if (
-        proof &&
-        proof.claim_id === claim.id &&
-        proof.challenge === challengeToken
-      ) {
+      if (isChallengeProofValid({
+        claimId: claim.id,
+        challengeToken,
+        expiresAt: claim.challenge_expires_at,
+        proof,
+        now,
+      })) {
         const verifiedAt = new Date().toISOString();
         const notes = {
           proof: "public_repository_challenge_file",
@@ -258,7 +262,7 @@ async function readPublicChallenge(
   }
 
   try {
-    const compact = payload.content.replace(/\s/g, "");
+    const compact = payload.content.replace(/\\s/g, "");
     const decoded = atob(compact);
     const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
     return JSON.parse(new TextDecoder().decode(bytes));
