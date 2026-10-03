@@ -99,7 +99,8 @@ class SupabaseMigrationContractTests(unittest.TestCase):
             "migrations/014_underwriting_rate_limit_atomic.sql",
         ]
 
-        positions = [readme.index(path) for path in ordered_paths]
+        migration_order = readme.split("## Migration order", 1)[1]
+        positions = [migration_order.index(path) for path in ordered_paths]
         self.assertEqual(positions, sorted(positions))
 
 
