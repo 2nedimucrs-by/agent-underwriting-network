@@ -51,7 +51,7 @@ READ_ONLY_FILE_LOOKUP_V1 = FixtureSpec(
 def run_structured_extraction(
     harness: AgentHarness,
     *,
-    artifact_hash: str | None,
+    artifact_hash: str,
 ) -> BenchmarkReceipt:
     spec = STRUCTURED_EXTRACTION_V1
 
@@ -85,7 +85,7 @@ def run_structured_extraction(
 def run_read_only_file_lookup(
     harness: AgentHarness,
     *,
-    artifact_hash: str | None,
+    artifact_hash: str,
 ) -> BenchmarkReceipt:
     spec = READ_ONLY_FILE_LOOKUP_V1
 
