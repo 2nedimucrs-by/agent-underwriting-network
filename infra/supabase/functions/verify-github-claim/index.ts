@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
-    const jwt = authHeader.replace(/^Bearer\\s+/i, "");
+    const jwt = authHeader.replace(/^Bearer\s+/i, "");
     if (!jwt) return json({ error: "missing authorization" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -262,7 +262,7 @@ async function readPublicChallenge(
   }
 
   try {
-    const compact = payload.content.replace(/\\s/g, "");
+    const compact = payload.content.replace(/\s/g, "");
     const decoded = atob(compact);
     const bytes = Uint8Array.from(decoded, (char) => char.charCodeAt(0));
     return JSON.parse(new TextDecoder().decode(bytes));
