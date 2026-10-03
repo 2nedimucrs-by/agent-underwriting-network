@@ -103,5 +103,20 @@ class SupabaseMigrationContractTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
 
 
+    def test_readme_warns_against_replaying_historical_sources_on_live_project(self):
+        readme = (ROOT / "infra" / "supabase" / "README.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("Fresh-project bootstrap only", readme)
+        self.assertIn(
+            "Do not replay it against the existing production project.", readme
+        )
+        self.assertIn(
+            "Any future production DDL requires a separately reviewed deployment plan",
+            readme,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
