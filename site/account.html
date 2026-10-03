@@ -108,7 +108,11 @@
         </div>
         <article class="panel">
           <p>Request deletion of your stored account profile, claims, saved agents, alerts and associated product data. Auth identity deletion is completed server-side after verification.</p>
-          <button id="delete-request" class="text-button danger-link" type="button">Request account deletion</button>
+          <div class="inline-actions">
+            <button id="export-data" class="button secondary" type="button">Export my data</button>
+            <button id="delete-request" class="text-button danger-link" type="button">Request account deletion</button>
+          </div>
+          <p id="export-status" class="form-status"></p>
           <p id="delete-status" class="form-status"></p>
         </article>
       </section>
