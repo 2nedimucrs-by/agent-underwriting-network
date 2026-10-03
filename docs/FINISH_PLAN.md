@@ -175,7 +175,8 @@ Deliver:
 - task policies
 - organization policy overrides
 - API authentication
-- rate limits
+- authenticated per-user limits (live, 30/minute and 500/day)
+- external API-key authentication and rate limits
 - private agents/registries
 - audit export
 - usage metering
@@ -201,7 +202,7 @@ Deliver:
 - terms
 - data map
 - security policy
-- abuse/rate-limit controls
+- abuse controls and concurrent-load/outage validation of the live rate limiter
 - dependency update policy
 - backups/export
 - monitoring
@@ -219,9 +220,10 @@ Release gates:
 - RLS tests
 - claim abuse tests
 - analytics privacy test
-- underwriting fail-closed tests
+- underwriting fail-closed and rate-limit concurrency/outage tests
 - no critical security findings
 - recovery procedure tested
+- live Supabase migration ledger reconciled to tracked source; explain the initial-baseline and duplicate-history entries, add tracked source for the live version-watch extension/schedule migrations, and verify schema/permissions before claiming source sync
 
 ## Phase I — Verified Labor Exchange — GATED
 
@@ -247,9 +249,58 @@ Then add:
 1. Keep the commercial plan and pilot report template aligned with actual product evidence.
 2. Execute capability fixtures against explicitly approved third-party agents in a bounded test environment; do not substitute mock harnesses for external evidence.
 3. Verify the live magic-link, maintainer-claim, saved-agent, version-drift, and notification paths with controlled test accounts and one real upstream version change.
-4. Close launch gate #16: abuse/rate-limit tests, backup/export/recovery drill, accessibility/browser QA, privacy/terms review, and monitoring/failure visibility.
+4. Close launch gate #16: concurrent rate-limit/abuse tests, backup/export/recovery drill, accessibility/browser QA, privacy/terms review, and monitoring/failure visibility.
 5. Conduct buyer/problem interviews; record willingness to pay separately from interest and secure written scope acceptance for one pilot.
 6. Confirm seller standing, tax responsibilities with qualified help, and that the chosen non-Stripe B2B payment method is enabled and suitable.
 7. Deliver and obtain acceptance for the scoped pilot; confirm collection before calling the product commercially ready.
 8. Only after pilot proof, add recurring checkout, provider webhooks, API keys, metering, and plan gates behind server-side authorization and truth-preserving tests.
 9. Keep the labor exchange gated until evidence-network traction is demonstrated.
+
+
+## Private-alpha acceptance matrix
+
+The following criteria define closure evidence for the current private-alpha milestone. Existing source code, a green fixture, or a successful deploy alone does not close an acceptance gate.
+
+### Identity and claims
+
+- GitHub OAuth: anonymous → sign-in → session/profile → refresh → sign-out; verify account state visibility at each step.
+- Email magic link: request, callback, session state; if the real link click requires the user, record only `BLOCKED_USER_MAGIC_LINK_CLICK`.
+- Verify anonymous, own-user, admin, and cross-user RLS behavior. No user may read another user's private records.
+- Personal-repository claim proves the signed-in GitHub user is the repository owner. Organization/collaborator claims use a 24-hour public challenge at `.github/agent-underwriting-claim.json`, bound to the exact claim ID, random token, and expiry.
+- Test pending, verified, rejected, and revoked states; wrong user/token/claim, expired challenge, replay, admin actions, and audit events.
+- Maintainer verification proves identity/control only and never changes security, capability, reliability, or task fitness.
+
+### Saved agents and version monitoring
+
+- Prove save → opt-in `VERSION_DRIFT` → real upstream version change → version snapshot → drift event → unread in-app notification → mark read.
+- Use controlled records where possible; preserve/restore real preferences and remove synthetic rows after the test.
+- External delivery remains opt-in; no automatic email or SMS.
+
+### Underwriting
+
+- Bind each request to the exact selected agent commit SHA; reject missing/unresolved or mismatched versions and include the bound SHA in the decision. This is not implemented in the current live function.
+- Test authenticated success and anonymous/invalid-session denial.
+- Cover missing evidence → `INSUFFICIENT_EVIDENCE`, blocked agent → `DENY`, prohibited writes → `DENY`, spend caps, stale evidence, unknown task → `REVIEW_REQUIRED`, missing agent, malformed JSON/types, cross-user isolation, returned evidence IDs, and backend failure.
+- Rate limits are 30 requests/minute/user and 500 requests/day/user. Prove concurrency and atomicity, and prove database/RPC failure fails closed. Client counters are not trusted.
+- Strict request parsing and malformed-input unit/contract tests are implemented in draft PR #30. They are not yet in `main` or production; the live negative test remains open until reviewed merge and deployment. The parser rejects unknown keys and incorrect types (including string booleans and non-finite/negative spend values) before decision evaluation.
+
+### Security, recovery, operations, and privacy
+
+- Run RLS and Edge Function abuse tests; verify anonymous/authenticated/admin boundaries and public secret scanning.
+- Test account export and deletion, including cascades. Complete a database backup/restore drill and document RPO/RTO assumptions.
+- Verify operational failure visibility for Edge Functions, version-watch, discovery, Pages, and CI.
+- Complete browser/accessibility acceptance for home, Trust Card, compare, underwriting, account, and admin on supported desktop browsers and desktop (1440), laptop (1024), tablet (~768), and mobile (~390) viewports. Check overflow, navigation, hidden state, forms, keyboard/focus, labels, contrast, and responsive layouts.
+- Confirm product analytics consent, no public raw-event access, no raw IP in product events, admin-only metrics, retention, export/deletion, and that internal test sessions are not reported as organic users.
+- Cloudflare traffic analytics remains additive and ON; Supabase product analytics remains ON.
+
+### Evidence receipts and growth boundaries
+
+- Execute task-specific third-party fixtures in bounded environments and retain exact artifact/version, SHA-256, fixture/environment IDs, evaluator version, timestamp, latency/cost, result, prohibited side effects, receipt hash, workflow provenance, and limitations.
+- Label procedural framework/TestModel execution as framework plumbing; never present it as model-backed capability.
+- Contextual outreach may be drafted with an exact public trigger, opt-out/suppression, audit trail, and human approval. No autonomous bulk email, stargazer campaigns, unsolicited mass DM, or automated GitHub advertising.
+
+### Readiness and human gates
+
+Set `TECHNICAL_PRIVATE_ALPHA_READY=YES` only after all feasible engineering acceptance criteria pass, with only named human/external actions remaining. Real buyer interviews, workflow/fee agreement, signed scope, qualified legal/tax review, seller/payment-route eligibility, customer acceptance, and actual payment are human/external gates. Do not mark the paid pilot complete until buyer acceptance and payment are evidenced.
+
+Keep issue #8 OPEN/GATED. Do not build wallets, escrow, a labor exchange, complex payment architecture, or self-serve recurring billing before first-pilot evidence. External API keys, organization overrides, metering, and plan gates should be introduced only when a concrete pilot or proven demand requires them.

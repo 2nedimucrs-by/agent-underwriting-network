@@ -86,6 +86,16 @@ function evaluate(card, taskType, requested) {
   const evidence = card.evidence_dimensions || {};
   const evidenceIds = card.evidence_ids || [];
 
+  if (!/^[a-f0-9]{40}$/i.test(card.version?.commit_sha || '')) {
+    return {
+      decision: 'INSUFFICIENT_EVIDENCE',
+      reasons: ['This Trust Card does not expose an immutable 40-character commit SHA.'],
+      limits: {},
+      missing: ['exact_version'],
+      evidenceIds
+    };
+  }
+
   if (card.status === 'BLOCKED') {
     return {
       decision: 'DENY',
@@ -235,6 +245,7 @@ runButton.addEventListener('click', async () => {
         body: {
           agent_id: card.agent_id,
           task_type: taskSelect.value,
+          version_commit_sha: card.version.commit_sha,
           limits: requested
         }
       });

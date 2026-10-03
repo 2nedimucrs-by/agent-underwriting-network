@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { matchesPinnedCard, parseCanHireJson, readBoundedBody } from "./request_validation.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -47,6 +48,7 @@ const policies: Record<string, {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
@@ -72,12 +74,16 @@ Deno.serve(async (req) => {
       return json({ error: "invalid session" }, 401);
     }
 
-    const service = createClient(supabaseUrl, secretKey);
-    const body = await req.json();
-    const agentId = String(body.agent_id || "");
-    const taskType = String(body.task_type || "");
-    const requested = body.limits || {};
+    const rawBody = await readBoundedBody(req.body, req.headers.get("Content-Length"));
+    if (!rawBody.ok) return json({ error: rawBody.error }, rawBody.status);
+    const parsed = parseCanHireJson(rawBody.value);
+    if (!parsed.ok) return json({ error: parsed.error }, parsed.status);
 
+    const { agent_id: agentId, task_type: taskType, version_commit_sha: versionCommitSha, limits: requested } = parsed.value
+    const slug = slugForAgent(agentId);
+    if (!slug) return json({ error: "unsupported agent_id" }, 400);
+
+    const service = createClient(supabaseUrl, secretKey);
     const { data: rateLimit, error: rateLimitError } = await service.rpc(
       "consume_underwriting_rate_limit",
       {
@@ -102,22 +108,6 @@ Deno.serve(async (req) => {
       }, 429);
     }
 
-    const policy = policies[taskType];
-    if (!policy) {
-      return json({
-        schema_version: "1.0.0",
-        decision: "REVIEW_REQUIRED",
-        agent_id: agentId,
-        task_type: taskType,
-        reasons: ["no underwriting policy exists for this task"],
-        limits: {},
-        evidence_ids: [],
-      }, 200);
-    }
-
-    const slug = slugForAgent(agentId);
-    if (!slug) return json({ error: "unsupported agent_id" }, 400);
-
     const trustResponse = await fetch(
       PUBLIC_BASE + "/trust-cards/" + slug + ".json",
       { headers: { "Cache-Control": "no-cache" } },
@@ -127,28 +117,50 @@ Deno.serve(async (req) => {
     }
 
     const card = await trustResponse.json();
+    if (!matchesPinnedCard(agentId, versionCommitSha, card)) {
+      return json({
+        error: "Trust Card identity or version changed; refresh and retry",
+      }, 409);
+    }
+
     const dimensions = card.evidence_dimensions || {};
     const evidenceIds = card.evidence_ids || [];
+    const policy = policies[taskType];
+    if (!policy) {
+      return json({
+        schema_version: "2.0.0",
+        decision: "REVIEW_REQUIRED",
+        agent_id: agentId,
+        task_type: taskType,
+        version_commit_sha: versionCommitSha,
+        reasons: ["no underwriting policy exists for this task"],
+        limits: {},
+        evidence_ids: [],
+        missing_dimensions: [],
+      }, 200);
+    }
 
     if (card.status === "BLOCKED") {
       return decision(
         "DENY",
         agentId,
         taskType,
+        versionCommitSha,
         ["agent status is BLOCKED"],
         {},
         evidenceIds,
       );
     }
 
-    const writeAccess = Boolean(requested.write_access);
-    const spend = Math.max(0, Number(requested.max_spend_usd || 0));
+    const writeAccess = requested.write_access ?? false;
+    const spend = requested.max_spend_usd ?? 0;
 
     if (writeAccess && !policy.allowsWrite) {
       return decision(
         "DENY",
         agentId,
         taskType,
+        versionCommitSha,
         ["task policy forbids write access"],
         { write_access: false, max_spend_usd: policy.maxSpendUsd },
         evidenceIds,
@@ -169,6 +181,7 @@ Deno.serve(async (req) => {
         "INSUFFICIENT_EVIDENCE",
         agentId,
         taskType,
+        versionCommitSha,
         ["required VERIFIED evidence is missing for: " + missing.join(", ")],
         limits,
         evidenceIds,
@@ -181,6 +194,7 @@ Deno.serve(async (req) => {
         "REVIEW_REQUIRED",
         agentId,
         taskType,
+        versionCommitSha,
         ["dimensions are VERIFIED but the Trust Card is not VERIFIED_FOR_TASK"],
         limits,
         evidenceIds,
@@ -192,6 +206,7 @@ Deno.serve(async (req) => {
         "ALLOW_WITH_LIMITS",
         agentId,
         taskType,
+        versionCommitSha,
         ["requested spend exceeds policy maximum"],
         limits,
         evidenceIds,
@@ -202,6 +217,7 @@ Deno.serve(async (req) => {
       "ALLOW",
       agentId,
       taskType,
+      versionCommitSha,
       ["task-specific evidence and requested limits satisfy policy"],
       limits,
       evidenceIds,
@@ -224,16 +240,18 @@ function decision(
   value: string,
   agentId: string,
   taskType: string,
+  versionCommitSha: string,
   reasons: string[],
   limits: Record<string, unknown>,
   evidenceIds: string[],
   missingDimensions: string[] = [],
 ) {
   return json({
-    schema_version: "1.0.0",
+    schema_version: "2.0.0",
     decision: value,
     agent_id: agentId,
     task_type: taskType,
+    version_commit_sha: versionCommitSha,
     reasons,
     limits,
     evidence_ids: evidenceIds,
