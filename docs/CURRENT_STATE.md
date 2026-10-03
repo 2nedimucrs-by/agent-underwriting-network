@@ -105,6 +105,7 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 - test personal-owner and organization/collaborator claim paths, challenge binding/expiry/replay, admin approve/reject/revoke, audit events, and prove maintainer verification never upgrades agent evidence
 - complete save → opt-in version-drift alert → real upstream change → snapshot/event/notification → unread/read acceptance with controlled data and cleanup
 - strict `/can-hire` body parsing and malformed-input tests are implemented in open draft PR #30 only; current `main` and production have not received this fix
+- add exact-version underwriting request/response binding: the live API currently fetches the latest Trust Card without a client-selected commit SHA; require a commit pin, reject mismatches/unresolved versions, and return the bound version in the decision
 - run underwriting negative and positive acceptance: anonymous/invalid JWT denial, missing evidence, blocked agent, prohibited writes, spend cap, stale evidence, unknown task, evidence IDs, malformed JSON/types, missing agent, cross-user behavior, and backend failure
 - prove 30/minute and 500/day per-user rate limits under concurrent load and verify limiter/database failures fail closed; do not trust client counters
 - execute additional task-specific external benchmark fixtures in bounded environments; distinguish framework plumbing from model-backed capability receipts

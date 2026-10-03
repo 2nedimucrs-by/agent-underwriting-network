@@ -98,6 +98,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] write-access and spend-limit policy enforcement
 - [x] atomic authenticated per-user rate-limit implementation (30/minute and 500/day)
 - [ ] rate-limit concurrency/atomicity and backend-outage fail-closed acceptance
+- [ ] bind each underwriting decision to the exact selected commit SHA; reject unresolved/mismatched versions and return the bound SHA
 - [ ] verify strict malformed-body rejection on production after reviewed merge
 - [x] signed-in UI invokes deployed can-hire API
 - [ ] external API keys/rate limits (post-pilot unless required by a specific pilot)

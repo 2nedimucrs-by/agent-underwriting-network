@@ -277,6 +277,7 @@ The following criteria define closure evidence for the current private-alpha mil
 
 ### Underwriting
 
+- Bind each request to the exact selected agent commit SHA; reject missing/unresolved or mismatched versions and include the bound SHA in the decision. This is not implemented in the current live function.
 - Test authenticated success and anonymous/invalid-session denial.
 - Cover missing evidence → `INSUFFICIENT_EVIDENCE`, blocked agent → `DENY`, prohibited writes → `DENY`, spend caps, stale evidence, unknown task → `REVIEW_REQUIRED`, missing agent, malformed JSON/types, cross-user isolation, returned evidence IDs, and backend failure.
 - Rate limits are 30 requests/minute/user and 500 requests/day/user. Prove concurrency and atomicity, and prove database/RPC failure fails closed. Client counters are not trusted.

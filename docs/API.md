@@ -49,7 +49,7 @@ Customers may configure stricter future organization policies. A paid plan must 
 
 ### Authentication and limits
 
-The deployed `can-hire` function requires an authenticated Supabase user session. Anonymous and invalid-session requests must be denied. Authenticated per-user rate limits are implemented atomically at 30 requests per minute and 500 per day; external organization/API-key authentication is deferred until a specific pilot or post-pilot demand requires it.
+The deployed `can-hire` function requires an authenticated Supabase user session. Its current request contract does not include a client-selected commit SHA: the function fetches the latest Trust Card for the repository. Therefore exact-version request/response binding is still an OPEN V1 acceptance gate, even though cards themselves carry a version field. Before technical readiness, require the exact 40-character commit SHA, compare it with the fetched card version, fail closed on mismatch/unresolved versions, and return that SHA with the decision. Anonymous and invalid-session requests must be denied. Authenticated per-user rate limits are implemented atomically at 30 requests per minute and 500 per day; external organization/API-key authentication is deferred until a specific pilot or post-pilot demand requires it.
 
 Rate-limit implementation is not acceptance proof. Required tests cover concurrency/atomicity, malformed JSON and field types, missing agents, unknown tasks, invalid JWTs, cross-user isolation, and database/RPC failure. The limit must fail closed when the authority is unavailable. Client-provided counters are never trusted.
 
