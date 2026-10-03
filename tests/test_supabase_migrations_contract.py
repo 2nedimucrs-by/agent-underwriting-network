@@ -103,6 +103,17 @@ class SupabaseMigrationContractTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
 
 
+    def test_readme_keeps_unresolved_live_migration_history_explicit(self):
+        readme = (ROOT / "infra" / "supabase" / "README.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("RECONCILIATION_INCOMPLETE", readme)
+        self.assertIn("20261002223225", readme)
+        self.assertIn("Two rows are named version_watch_and_notifications", readme)
+        self.assertIn("must not be counted as an applied migration", readme)
+        self.assertIn("Do not replay production history.", readme)
+
     def test_readme_warns_against_replaying_historical_sources_on_live_project(self):
         readme = (ROOT / "infra" / "supabase" / "README.md").read_text(
             encoding="utf-8"
