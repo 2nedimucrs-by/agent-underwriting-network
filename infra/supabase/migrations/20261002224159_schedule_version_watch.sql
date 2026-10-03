@@ -30,11 +30,10 @@ select cron.schedule(
       )
     ),
     body := jsonb_build_object(
-      'trigger', 'cron',
-      'run_at', now()
+      'source', 'supabase-cron',
+      'scheduled_at', now()
     ),
     timeout_milliseconds := 15000
   );
   $job$
 );
-
