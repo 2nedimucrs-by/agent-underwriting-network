@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
     const policy = policies[taskType];
     if (!policy) {
       return json({
-        schema_version: "1.0.0",
+        schema_version: "2.0.0",
         decision: "REVIEW_REQUIRED",
         agent_id: agentId,
         task_type: taskType,
@@ -135,6 +135,7 @@ Deno.serve(async (req) => {
         reasons: ["no underwriting policy exists for this task"],
         limits: {},
         evidence_ids: [],
+        missing_dimensions: [],
       }, 200);
     }
 
@@ -245,7 +246,7 @@ function decision(
   missingDimensions: string[] = [],
 ) {
   return json({
-    schema_version: "1.0.0",
+    schema_version: "2.0.0",
     decision: value,
     agent_id: agentId,
     task_type: taskType,

@@ -179,5 +179,35 @@ class SupabaseContractTests(unittest.TestCase):
         self.assertEqual(schema["maxProperties"], 4)
 
 
+    def test_underwriting_response_schema_matches_version_bound_decisions(self):
+        import json
+
+        schema = json.loads(
+            (
+                ROOT / "schemas" / "underwriting.schema.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertTrue(schema["additionalProperties"] is False)
+        self.assertEqual(schema["properties"]["schema_version"]["const"], "2.0.0")
+        self.assertIn("version_commit_sha", schema["required"])
+        self.assertEqual(
+            schema["properties"]["version_commit_sha"],
+            {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+        )
+        self.assertIn("missing_dimensions", schema["required"])
+        self.assertEqual(
+            schema["properties"]["missing_dimensions"],
+            {"type": "array", "items": {"type": "string"}},
+        )
+
+        source = (
+            ROOT / "infra" / "supabase" / "functions" / "can-hire" / "index.ts"
+        ).read_text(encoding="utf-8")
+        self.assertEqual(source.count('schema_version: "2.0.0"'), 2)
+        self.assertIn("version_commit_sha: versionCommitSha", source)
+        self.assertIn("missing_dimensions: missingDimensions", source)
+        self.assertIn("missing_dimensions: [],", source)
+
+
 if __name__ == "__main__":
     unittest.main()

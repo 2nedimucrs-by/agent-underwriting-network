@@ -2,15 +2,63 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "UnderwritingDecision",
   "type": "object",
-  "required": ["schema_version", "decision", "agent_id", "task_type", "reasons", "evidence_ids"],
+  "required": [
+    "schema_version",
+    "decision",
+    "agent_id",
+    "task_type",
+    "version_commit_sha",
+    "reasons",
+    "limits",
+    "evidence_ids",
+    "missing_dimensions"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0.0"},
-    "decision": {"enum": ["ALLOW", "ALLOW_WITH_LIMITS", "REVIEW_REQUIRED", "DENY", "INSUFFICIENT_EVIDENCE"]},
-    "agent_id": {"type": "string"},
-    "task_type": {"type": "string"},
-    "reasons": {"type": "array", "items": {"type": "string"}, "minItems": 1},
-    "limits": {"type": "object"},
-    "evidence_ids": {"type": "array", "items": {"type": "string"}}
+    "schema_version": {
+      "const": "2.0.0"
+    },
+    "decision": {
+      "enum": [
+        "ALLOW",
+        "ALLOW_WITH_LIMITS",
+        "REVIEW_REQUIRED",
+        "DENY",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    "agent_id": {
+      "type": "string"
+    },
+    "task_type": {
+      "type": "string"
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "limits": {
+      "type": "object"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "version_commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "missing_dimensions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "schema_version": "2.0.0"
 }

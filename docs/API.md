@@ -20,6 +20,25 @@ Given an exact agent identity, a task type and requested operational limits, ret
 }
 ```
 
+
+### Response
+
+Decision responses use `schema_version: "2.0.0"` and include the exact `version_commit_sha` used for the decision.
+
+```json
+{
+  "schema_version": "2.0.0",
+  "decision": "INSUFFICIENT_EVIDENCE",
+  "agent_id": "github:browser-use/browser-use",
+  "task_type": "browser_read",
+  "version_commit_sha": "0123456789abcdef0123456789abcdef01234567",
+  "reasons": ["required VERIFIED evidence is missing for: capability"],
+  "limits": { "write_access": false, "max_spend_usd": 0 },
+  "evidence_ids": [],
+  "missing_dimensions": ["capability"]
+}
+```
+
 ### Decision set
 
 - ALLOW
@@ -50,7 +69,7 @@ Customers may configure stricter future organization policies. A paid plan must 
 
 ### Authentication and limits
 
-The deployed `can-hire` function requires an authenticated Supabase user session. Its current request contract does not include a client-selected commit SHA: the function fetches the latest Trust Card for the repository. Therefore exact-version request/response binding is still an OPEN V1 acceptance gate, even though cards themselves carry a version field. Before technical readiness, require the exact 40-character commit SHA, compare it with the fetched card version, fail closed on mismatch/unresolved versions, and return that SHA with the decision. Anonymous and invalid-session requests must be denied. Authenticated per-user rate limits are implemented atomically at 30 requests per minute and 500 per day; external organization/API-key authentication is deferred until a specific pilot or post-pilot demand requires it.
+The live `main` deployment requires an authenticated Supabase user session and still uses the pre-#30 request contract. PR #30 changes the contract to require a 40-character commit SHA, compare it with the fetched Trust Card version, fail closed on mismatch or unresolved versions, and return the pinned SHA with each decision under response schema version `2.0.0`. Production exact-version acceptance remains open until the change is reviewed, merged, deployed, and checked with live negative-input and version-mismatch tests. Anonymous and invalid-session requests must be denied. Authenticated per-user rate limits are implemented atomically at 30 requests per minute and 500 per day; external organization/API-key authentication is deferred until a specific pilot or post-pilot demand requires it.
 
 Rate-limit implementation is not acceptance proof. Required tests cover concurrency/atomicity, malformed JSON and field types, missing agents, unknown tasks, invalid JWTs, cross-user isolation, and database/RPC failure. The limit must fail closed when the authority is unavailable. Client-provided counters are never trusted.
 
