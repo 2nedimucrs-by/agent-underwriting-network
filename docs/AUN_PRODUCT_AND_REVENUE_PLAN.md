@@ -26,7 +26,7 @@ Product principles:
 
 ### Phase 0 — Validate the buyer and the job
 
-Interview AI platform/security/procurement teams and agent-platform maintainers. Use the [buyer discovery interview guide](./PILOT_BUYER_INTERVIEW_GUIDE.md) to keep questions neutral. Focus on a recurring decision they already make: selecting or approving an agent for a real workflow. Ask for a concrete recent decision, evidence they used, the cost of a wrong choice, the review owner, and what would make an independent report useful. Record willingness-to-pay separately from general interest.
+Interview AI platform/security/procurement teams and agent-platform maintainers. Use the [buyer discovery interview guide](./PILOT_BUYER_INTERVIEW_GUIDE.md) to keep questions neutral. Focus on a recurring decision they already make: selecting or approving an agent for a real workflow. Ask for a concrete recent decision, evidence they used, the cost of a wrong choice, the review owner, and what would make an independent report useful. Record willingness-to-pay separately from general interest. For a concise invitation draft, use [the pilot buyer outreach template](./PILOT_BUYER_OUTREACH_TEMPLATE.md) and follow the [outreach policy](./OUTREACH_POLICY.md): identify a specific public signal relevant to the recipient, obtain human review before sending, and honor opt-outs. Do not treat an invitation or positive interview as purchase validation; count willingness-to-pay only when a buyer accepts a specific scope and price in writing.
 
 Do not charge for a security/capability verdict that the current evidence system cannot substantiate.
 
