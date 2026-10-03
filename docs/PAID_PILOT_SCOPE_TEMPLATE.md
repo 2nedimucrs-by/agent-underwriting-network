@@ -67,11 +67,14 @@ The current internal price range is a hypothesis, not a public list price. Set t
 - [ ] Customer is contracting as a business for a commercial service
 - [ ] Signed agreement or other approved written scope is in place
 - [ ] Invoice states the agreed, undisputed amount and due date
-- [ ] Payoneer account permits this B2B transaction and the selected feature is available for it
-- [ ] Payment request amount/currency matches the signed scope and invoice
+- [ ] Payoneer account permits this B2B transaction and the selected feature/payment method is available for it
+- [ ] Named business payer is authorized and has consented to receive the request
+- [ ] Request amount/currency matches the signed scope and invoice, and the amount is currently due
+- [ ] Any request or link is sent securely and directly to the correct payer; it is not posted publicly or mass-distributed
+- [ ] A single-payment request is not reused for the same payment
 - [ ] Collection status is confirmed in the Payoneer account before recording revenue
 
-Payoneer states that Payment Request / Billing Solutions are for due commercial business amounts; feature availability remains subject to eligibility and current terms. See [Payoneer Billing Solutions terms](https://pubs.payoneer.com/legal/PayoneerTermsAndConditionsINC_Apr2026.htm) and [Payment Request](https://www.payoneer.com/payment-request/). Do not use this route for consumer subscriptions or as a substitute for seller/jurisdiction review.
+Payoneer’s U.S. Billing Solutions terms permit requests only for undisputed amounts owed by a business and due for payment; they prohibit consumer payments, debt collection, unsolicited or mass distribution, and public posting of billing links. Feature and payer-method availability remain subject to eligibility and current account terms. Payoneer may request identity, line-of-business, invoice, or service-delivery evidence. See [Payoneer Billing Solutions terms](https://pubs.payoneer.com/legal/PayoneerTermsAndConditionsINC_Apr2026.htm) and [Payment Request](https://www.payoneer.com/payment-request/). This checklist does not replace seller/entity or tax review.
 
 ## Evidence and data handling
 
