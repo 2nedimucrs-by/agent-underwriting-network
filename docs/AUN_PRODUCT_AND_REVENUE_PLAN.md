@@ -38,6 +38,17 @@ Pricing hypothesis to test, not a published price: **$500–$1,500 per pilot**, 
 
 This validates value before building billing or an automated underwriting API.
 
+#### Minimum sellable first pilot
+
+- **Buyer:** an AI platform, security, or procurement team that already makes agent approval decisions for a real workflow.
+- **Scope:** one named workflow and up to five exact, version-pinned agents, delivered in a time-boxed two-week review. Start with public or explicitly authorized evidence. Do not require production credentials or claim that AUN has safely executed an agent in a customer environment.
+- **Deliverables:** a source-linked evidence register with observation time and artifact/version identity; a task-fit matrix covering capability, permission, dependency, freshness, and material unknowns; reproducible receipts only for fixtures and adapters actually run; and a review session with a decision record. Every conclusion must point to evidence. Unknown or untested dimensions stay unknown; the report is not a certification or deployment authorization.
+- **Acceptance:** the buyer receives the agreed evidence pack and review session; each material claim has a source or receipt; unresolved gaps and stale evidence are visible; no secrets are included in the report.
+- **Commercial setup:** agree the workflow, agent limit, deliverables, exclusions, schedule, fee, and payment date in a signed business-to-business scope before work begins. Select a pilot fee within the existing hypothesis range based on review effort. Request payment only after the seller entity, tax obligations, and enabled payment route have been checked; use Payoneer only if the account supports the relevant commercial B2B request. Payment does not unlock or change evidence, verdicts, ranking, or production permissions.
+- **Evidence to proceed:** record at least three buyer/problem interviews and one pilot buyer's written acceptance of scope and price. Do not claim commercial readiness until a real pilot is delivered and accepted and the agreed payment is confirmed.
+
+
+
 ### Phase 2 — Self-serve team subscription
 
 Only after the account workspace and monitoring deliver recurring value, test a per-workspace subscription. Candidate paid value: saved-agent portfolio, version/evidence drift alerts, evidence history/export, team review notes, and policy templates. Keep the public index free. Charge for workflow, monitoring, collaboration, and service capacity—not for better scores, faster verdicts, badges, or ranking.
