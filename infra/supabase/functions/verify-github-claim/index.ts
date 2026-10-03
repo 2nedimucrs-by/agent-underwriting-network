@@ -56,6 +56,12 @@ Deno.serve(async (req) => {
     if (claim.status === "VERIFIED_MAINTAINER") {
       return json({ status: claim.status, proof: "already_verified" }, 200);
     }
+    if (claim.status !== "PENDING_GITHUB_VERIFICATION") {
+      return json({
+        error: "claim is not pending verification",
+        status: claim.status,
+      }, 409);
+    }
 
     const { data: profile, error: profileError } = await service
       .from("profiles")
@@ -92,17 +98,15 @@ Deno.serve(async (req) => {
         verified_at: verifiedAt,
       };
 
-      const { error: updateError } = await service
-        .from("agent_claims")
-        .update({
-          status: "VERIFIED_MAINTAINER",
-          verification_method: "github_oauth_owner",
-          verified_at: verifiedAt,
-          verification_notes: notes,
-        })
-        .eq("id", claim.id);
-
-      if (updateError) throw updateError;
+      const updated = await updatePendingClaim(service, claim.id, {
+        status: "VERIFIED_MAINTAINER",
+        verification_method: "github_oauth_owner",
+        verified_at: verifiedAt,
+        verification_notes: notes,
+      });
+      if (!updated) {
+        return json({ error: "claim state changed during verification" }, 409);
+      }
 
       await writeAudit(service, {
         claim_id: claim.id,
@@ -139,17 +143,15 @@ Deno.serve(async (req) => {
           verified_at: verifiedAt,
         };
 
-        const { error: updateError } = await service
-          .from("agent_claims")
-          .update({
-            status: "VERIFIED_MAINTAINER",
-            verification_method: "public_repository_challenge",
-            verified_at: verifiedAt,
-            verification_notes: notes,
-          })
-          .eq("id", claim.id);
-
-        if (updateError) throw updateError;
+        const updated = await updatePendingClaim(service, claim.id, {
+          status: "VERIFIED_MAINTAINER",
+          verification_method: "public_repository_challenge",
+          verified_at: verifiedAt,
+          verification_notes: notes,
+        });
+        if (!updated) {
+          return json({ error: "claim state changed during verification" }, 409);
+        }
 
         await writeAudit(service, {
           claim_id: claim.id,
@@ -181,18 +183,16 @@ Deno.serve(async (req) => {
         expires_at: expiresAtIso,
       };
 
-      const { error: challengeError } = await service
-        .from("agent_claims")
-        .update({
-          verification_method: "public_repository_challenge",
-          challenge_token: challengeToken,
-          challenge_issued_at: issuedAt.toISOString(),
-          challenge_expires_at: expiresAtIso,
-          verification_notes: challengeNotes,
-        })
-        .eq("id", claim.id);
-
-      if (challengeError) throw challengeError;
+      const issued = await updatePendingClaim(service, claim.id, {
+        verification_method: "public_repository_challenge",
+        challenge_token: challengeToken,
+        challenge_issued_at: issuedAt.toISOString(),
+        challenge_expires_at: expiresAtIso,
+        verification_notes: challengeNotes,
+      });
+      if (!issued) {
+        return json({ error: "claim state changed during verification" }, 409);
+      }
 
       await writeAudit(service, {
         claim_id: claim.id,
@@ -265,6 +265,23 @@ async function readPublicChallenge(
   } catch (_) {
     return null;
   }
+}
+
+async function updatePendingClaim(
+  service: any,
+  claimId: string,
+  patch: Record<string, unknown>,
+): Promise<boolean> {
+  const { data, error } = await service
+    .from("agent_claims")
+    .update(patch)
+    .eq("id", claimId)
+    .eq("status", "PENDING_GITHUB_VERIFICATION")
+    .select("id")
+    .maybeSingle();
+
+  if (error) throw error;
+  return Boolean(data?.id);
 }
 
 async function writeAudit(
