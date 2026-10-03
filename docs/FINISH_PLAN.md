@@ -175,7 +175,8 @@ Deliver:
 - task policies
 - organization policy overrides
 - API authentication
-- rate limits
+- authenticated per-user limits (live, 30/minute and 500/day)
+- external API-key authentication and rate limits
 - private agents/registries
 - audit export
 - usage metering
@@ -201,7 +202,7 @@ Deliver:
 - terms
 - data map
 - security policy
-- abuse/rate-limit controls
+- abuse controls and concurrent-load/outage validation of the live rate limiter
 - dependency update policy
 - backups/export
 - monitoring
@@ -219,7 +220,7 @@ Release gates:
 - RLS tests
 - claim abuse tests
 - analytics privacy test
-- underwriting fail-closed tests
+- underwriting fail-closed and rate-limit concurrency/outage tests
 - no critical security findings
 - recovery procedure tested
 
@@ -247,7 +248,7 @@ Then add:
 1. Keep the commercial plan and pilot report template aligned with actual product evidence.
 2. Execute capability fixtures against explicitly approved third-party agents in a bounded test environment; do not substitute mock harnesses for external evidence.
 3. Verify the live magic-link, maintainer-claim, saved-agent, version-drift, and notification paths with controlled test accounts and one real upstream version change.
-4. Close launch gate #16: abuse/rate-limit tests, backup/export/recovery drill, accessibility/browser QA, privacy/terms review, and monitoring/failure visibility.
+4. Close launch gate #16: concurrent rate-limit/abuse tests, backup/export/recovery drill, accessibility/browser QA, privacy/terms review, and monitoring/failure visibility.
 5. Conduct buyer/problem interviews; record willingness to pay separately from interest and secure written scope acceptance for one pilot.
 6. Confirm seller standing, tax responsibilities with qualified help, and that the chosen non-Stripe B2B payment method is enabled and suitable.
 7. Deliver and obtain acceptance for the scoped pilot; confirm collection before calling the product commercially ready.
