@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { parseCanHireJson } from "./request_validation.mjs";
+import { matchesPinnedCard, parseCanHireJson } from "./request_validation.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
     const parsed = parseCanHireJson(rawBody);
     if (!parsed.ok) return json({ error: parsed.error }, parsed.status);
 
-    const { agent_id: agentId, task_type: taskType, limits: requested } = parsed.value;
+    const { agent_id: agentId, task_type: taskType, version_commit_sha: versionCommitSha, limits: requested } = parsed.value
     const slug = slugForAgent(agentId);
     if (!slug) return json({ error: "unsupported agent_id" }, 400);
 
@@ -107,19 +107,6 @@ Deno.serve(async (req) => {
       }, 429);
     }
 
-    const policy = policies[taskType];
-    if (!policy) {
-      return json({
-        schema_version: "1.0.0",
-        decision: "REVIEW_REQUIRED",
-        agent_id: agentId,
-        task_type: taskType,
-        reasons: ["no underwriting policy exists for this task"],
-        limits: {},
-        evidence_ids: [],
-      }, 200);
-    }
-
     const trustResponse = await fetch(
       PUBLIC_BASE + "/trust-cards/" + slug + ".json",
       { headers: { "Cache-Control": "no-cache" } },
@@ -129,14 +116,34 @@ Deno.serve(async (req) => {
     }
 
     const card = await trustResponse.json();
+    if (!matchesPinnedCard(agentId, versionCommitSha, card)) {
+      return json({
+        error: "Trust Card identity or version changed; refresh and retry",
+      }, 409);
+    }
+
     const dimensions = card.evidence_dimensions || {};
     const evidenceIds = card.evidence_ids || [];
+    const policy = policies[taskType];
+    if (!policy) {
+      return json({
+        schema_version: "1.0.0",
+        decision: "REVIEW_REQUIRED",
+        agent_id: agentId,
+        task_type: taskType,
+        version_commit_sha: versionCommitSha,
+        reasons: ["no underwriting policy exists for this task"],
+        limits: {},
+        evidence_ids: [],
+      }, 200);
+    }
 
     if (card.status === "BLOCKED") {
       return decision(
         "DENY",
         agentId,
         taskType,
+        versionCommitSha,
         ["agent status is BLOCKED"],
         {},
         evidenceIds,
@@ -151,6 +158,7 @@ Deno.serve(async (req) => {
         "DENY",
         agentId,
         taskType,
+        versionCommitSha,
         ["task policy forbids write access"],
         { write_access: false, max_spend_usd: policy.maxSpendUsd },
         evidenceIds,
@@ -171,6 +179,7 @@ Deno.serve(async (req) => {
         "INSUFFICIENT_EVIDENCE",
         agentId,
         taskType,
+        versionCommitSha,
         ["required VERIFIED evidence is missing for: " + missing.join(", ")],
         limits,
         evidenceIds,
@@ -183,6 +192,7 @@ Deno.serve(async (req) => {
         "REVIEW_REQUIRED",
         agentId,
         taskType,
+        versionCommitSha,
         ["dimensions are VERIFIED but the Trust Card is not VERIFIED_FOR_TASK"],
         limits,
         evidenceIds,
@@ -194,6 +204,7 @@ Deno.serve(async (req) => {
         "ALLOW_WITH_LIMITS",
         agentId,
         taskType,
+        versionCommitSha,
         ["requested spend exceeds policy maximum"],
         limits,
         evidenceIds,
@@ -204,6 +215,7 @@ Deno.serve(async (req) => {
       "ALLOW",
       agentId,
       taskType,
+      versionCommitSha,
       ["task-specific evidence and requested limits satisfy policy"],
       limits,
       evidenceIds,
@@ -226,7 +238,8 @@ function decision(
   value: string,
   agentId: string,
   taskType: string,
-  reasons: string[],
+  versionCommitSha: string,
+  reasons: string[]
   limits: Record<string, unknown>,
   evidenceIds: string[],
   missingDimensions: string[] = [],
@@ -236,6 +249,7 @@ function decision(
     decision: value,
     agent_id: agentId,
     task_type: taskType,
+    version_commit_sha: versionCommitSha,
     reasons,
     limits,
     evidence_ids: evidenceIds,

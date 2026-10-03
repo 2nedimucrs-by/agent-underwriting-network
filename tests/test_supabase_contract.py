@@ -159,6 +159,8 @@ class SupabaseContractTests(unittest.TestCase):
         self.assertLess(source.index("parseCanHireJson(rawBody)"), source.index('"consume_underwriting_rate_limit"'))
         self.assertIn('requested.write_access ?? false', source)
         self.assertIn('requested.max_spend_usd ?? 0', source)
+        self.assertIn("matchesPinnedCard(agentId, versionCommitSha, card)", source)
+        self.assertIn("version_commit_sha: versionCommitSha", source)
         self.assertNotIn('Boolean(requested.write_access)', source)
         self.assertNotIn('Number(requested.max_spend_usd', source)
 
@@ -173,6 +175,8 @@ class SupabaseContractTests(unittest.TestCase):
         self.assertTrue(schema["additionalProperties"] is False)
         self.assertEqual(schema["properties"]["agent_id"]["maxLength"], 256)
         self.assertEqual(schema["properties"]["task_type"]["maxLength"], 80)
+        self.assertIn("version_commit_sha", schema["required"])
+        self.assertEqual(schema["maxProperties"], 4)
 
 
 if __name__ == "__main__":

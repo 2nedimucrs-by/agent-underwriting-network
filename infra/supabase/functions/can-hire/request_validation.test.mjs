@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseCanHireJson } from "./request_validation.mjs";
+import { matchesPinnedCard, parseCanHireJson } from "./request_validation.mjs";
 
 const valid = {
   agent_id: "github:browser-use/browser-use",
   task_type: "browser_read",
+  version_commit_sha: "a".repeat(40),
   limits: { write_access: false, max_spend_usd: 0 },
 };
 
@@ -18,6 +19,7 @@ test("defaults omitted limits to an empty object", () => {
   const result = parseCanHireJson(JSON.stringify({
     agent_id: "github:owner/repo",
     task_type: "custom_task",
+    version_commit_sha: "a".repeat(40),
   }));
   assert.equal(result.ok, true);
   assert.deepEqual(result.value.limits, {});
@@ -63,10 +65,26 @@ test("rejects non-finite and negative spend values", () => {
   }
 });
 
+test("rejects a missing or malformed version pin", () => {
+  const base = { agent_id: "github:owner/repo", task_type: "browser_read" };
+  assert.equal(parseCanHireJson(JSON.stringify(base)).ok, false);
+  assert.equal(parseCanHireJson(JSON.stringify({ ...base, version_commit_sha: "abc" })).ok, false);
+  assert.equal(parseCanHireJson(JSON.stringify({ ...base, version_commit_sha: "g".repeat(40) })).ok, false);
+});
+
+test("accepts only a Trust Card matching the requested agent and commit", () => {
+  const card = { agent_id: valid.agent_id, version: { commit_sha: "a".repeat(40) } };
+  assert.equal(matchesPinnedCard(valid.agent_id, "a".repeat(40), card), true);
+  assert.equal(matchesPinnedCard(valid.agent_id, "b".repeat(40), card), false);
+  assert.equal(matchesPinnedCard("github:other/repo", "a".repeat(40), card), false);
+  assert.equal(matchesPinnedCard(valid.agent_id, "a".repeat(40), { agent_id: valid.agent_id }), false);
+});
+
 test("rejects unknown tasks only at policy evaluation, not schema parsing", () => {
   assert.equal(parseCanHireJson(JSON.stringify({
     agent_id: "github:owner/repo",
     task_type: "unknown_task",
+    version_commit_sha: "a".repeat(40),
   })).ok, true);
 });
 

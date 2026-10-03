@@ -24,7 +24,7 @@ export function parseCanHireJson(raw) {
     return { ok: false, status: 400, error: "request body must be an object" };
   }
   const keys = Object.keys(body);
-  if (keys.some((key) => !["agent_id", "task_type", "limits"].includes(key))) {
+  if (keys.some((key) => !["agent_id", "task_type", "version_commit_sha", "limits"].includes(key))) {
     return { ok: false, status: 400, error: "request body contains an unknown field" };
   }
 
@@ -35,6 +35,12 @@ export function parseCanHireJson(raw) {
     !/^github:[A-Za-z0-9-]+\/[A-Za-z0-9._-]+$/.test(body.agent_id)
   ) {
     return { ok: false, status: 400, error: "agent_id is invalid" };
+  }
+  if (
+    typeof body.version_commit_sha !== "string" ||
+    !/^[a-fA-F0-9]{40}$/.test(body.version_commit_sha)
+  ) {
+    return { ok: false, status: 400, error: "version_commit_sha must be a 40-character commit SHA" };
   }
   if (
     typeof body.task_type !== "string" ||
@@ -68,10 +74,30 @@ export function parseCanHireJson(raw) {
     value: {
       agent_id: body.agent_id,
       task_type: body.task_type,
+      version_commit_sha: body.version_commit_sha.toLowerCase(),
       limits: {
         ...(limits.write_access === undefined ? {} : { write_access: limits.write_access }),
         ...(limits.max_spend_usd === undefined ? {} : { max_spend_usd: limits.max_spend_usd }),
       },
     },
   };
+}
+
+
+/**
+ * Ensure a decision is bound to the requested repository and immutable commit.
+ * @param {string} agentId
+ * @param {string} versionCommitSha
+ * @param {{ agent_id?: unknown, version?: { commit_sha?: unknown } }} card
+ * @returns {boolean}
+ */
+export function matchesPinnedCard(agentId, versionCommitSha, card) {
+  return (
+    typeof agentId === "string" &&
+    typeof versionCommitSha === "string" &&
+    /^[a-f0-9]{40}$/.test(versionCommitSha) &&
+    card?.agent_id === agentId &&
+    typeof card.version?.commit_sha === "string" &&
+    card.version.commit_sha.toLowerCase() === versionCommitSha
+  );
 }

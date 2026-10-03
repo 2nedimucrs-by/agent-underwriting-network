@@ -12,6 +12,7 @@ Given an exact agent identity, a task type and requested operational limits, ret
 {
   "agent_id": "github:browser-use/browser-use",
   "task_type": "browser_read",
+  "version_commit_sha": "0123456789abcdef0123456789abcdef01234567",
   "limits": {
     "write_access": false,
     "max_spend_usd": 0
