@@ -16,8 +16,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.7.14
+          cache: true
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e .
+      - name: Type-check can-hire Edge Function
+        run: deno check --no-config infra/supabase/functions/can-hire/index.ts
       - name: Test underwriting request validation
         run: node --test infra/supabase/functions/can-hire/request_validation.test.mjs
       - run: python -m unittest discover -s tests -v
