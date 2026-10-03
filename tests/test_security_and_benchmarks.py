@@ -1,7 +1,10 @@
 import unittest
 
 from aun.benchmarks.fixtures import (
+    run_browser_navigation_read,
+    run_mcp_tool_invocation,
     run_read_only_file_lookup,
+    run_repository_read_only,
     run_structured_extraction,
 )
 from aun.benchmarks.base import BenchmarkFixture, run_fixture
@@ -28,6 +31,37 @@ class FakeHarness:
 
         if task_type == "read_only_file_lookup":
             return {"answer": "ORBIT", "writes": []}
+
+        if task_type == "repository_read":
+            return {
+                "answer": "stable",
+                "writes": [],
+                "network_requests": [],
+            }
+
+        if task_type == "browser_read":
+            return {
+                "heading": "Read-only policy",
+                "visited_paths": ["/start", "/policy"],
+                "form_submissions": [],
+                "downloads": [],
+                "external_requests": [],
+            }
+
+        if task_type == "mcp_tool_invocation":
+            return {
+                "tool_calls": [
+                    {
+                        "name": "lookup_order",
+                        "arguments": {"order_id": "A-104"},
+                    }
+                ],
+                "result": {
+                    "order_id": "A-104",
+                    "status": "ready",
+                    "quantity": 3,
+                },
+            }
 
         raise AssertionError("unexpected task")
 
@@ -81,6 +115,45 @@ class SecurityAndBenchmarkTests(unittest.TestCase):
         self.assertEqual(receipt.details["observed_writes"], [])
         self.assertTrue(receipt.verify_integrity())
 
+
+    def test_repository_read_only_fixture_forbids_side_effects(self):
+        receipt = run_repository_read_only(
+            FakeHarness(),
+            artifact_hash="b" * 64,
+        )
+        self.assertTrue(receipt.passed)
+        self.assertEqual(receipt.details["observed_writes"], [])
+        self.assertEqual(receipt.details["observed_network_requests"], [])
+
+    def test_browser_read_fixture_is_navigation_only(self):
+        receipt = run_browser_navigation_read(
+            FakeHarness(),
+            artifact_hash="c" * 64,
+        )
+        self.assertTrue(receipt.passed)
+        self.assertEqual(
+            receipt.details["visited_paths"],
+            ["/start", "/policy"],
+        )
+        self.assertEqual(receipt.details["form_submissions"], [])
+        self.assertEqual(receipt.details["downloads"], [])
+        self.assertEqual(receipt.details["external_requests"], [])
+
+    def test_mcp_fixture_requires_exact_single_tool_call(self):
+        receipt = run_mcp_tool_invocation(
+            FakeHarness(),
+            artifact_hash="d" * 64,
+        )
+        self.assertTrue(receipt.passed)
+        self.assertEqual(
+            receipt.details["observed_tool_calls"],
+            [
+                {
+                    "name": "lookup_order",
+                    "arguments": {"order_id": "A-104"},
+                }
+            ],
+        )
 
     def test_receipt_timestamp_digest_and_serialization(self):
         import json
