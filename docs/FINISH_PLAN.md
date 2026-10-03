@@ -94,7 +94,7 @@ Acceptance:
 - new agent version marks older evidence stale unless declared reusable
 - VERIFIED capability requires a reproducible successful fixture
 
-## Phase D — Accounts, identity and claims — BACKEND READY NEXT
+## Phase D — Accounts, identity and claims — LIVE FEATURES; END-TO-END VALIDATION OPEN
 
 Target stack: Supabase Free + GitHub OAuth + email magic link.
 
@@ -121,7 +121,7 @@ External setup required:
 - GitHub OAuth App
 - Supabase URL/publishable key in GitHub repository variables
 
-## Phase E — Analytics and command center — FRONTEND/SCHEMA READY NEXT
+## Phase E — Analytics and command center — LIVE; RETENTION/RECOVERY OPEN
 
 Deliver:
 - privacy-first aggregate traffic analytics
@@ -168,7 +168,7 @@ Acceptance:
 - no autonomous bulk email
 - external sending remains approval-gated until policy/legal controls are proven
 
-## Phase G — Underwriting API and revenue
+## Phase G — Underwriting API and revenue — API CORE LIVE; COMMERCIAL ACCESS OPEN
 
 Deliver:
 - POST /can-hire contract
