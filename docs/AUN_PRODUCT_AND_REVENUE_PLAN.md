@@ -26,7 +26,7 @@ Product principles:
 
 ### Phase 0 — Validate the buyer and the job
 
-Interview AI platform/security/procurement teams and agent-platform maintainers. Focus on a recurring decision they already make: selecting or approving an agent for a real workflow. Ask for a concrete recent decision, evidence they used, the cost of a wrong choice, the review owner, and what would make an independent report useful. Record willingness-to-pay separately from general interest.
+Interview AI platform/security/procurement teams and agent-platform maintainers. Use the [buyer discovery interview guide](./PILOT_BUYER_INTERVIEW_GUIDE.md) to keep questions neutral. Focus on a recurring decision they already make: selecting or approving an agent for a real workflow. Ask for a concrete recent decision, evidence they used, the cost of a wrong choice, the review owner, and what would make an independent report useful. Record willingness-to-pay separately from general interest.
 
 Do not charge for a security/capability verdict that the current evidence system cannot substantiate.
 
