@@ -104,6 +104,7 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 - run complete GitHub OAuth and email magic-link acceptance: session creation/refresh/sign-out and anonymous, self, admin, and cross-user RLS boundaries; only the real email-link click may remain a user action
 - test personal-owner and organization/collaborator claim paths, challenge binding/expiry/replay, admin approve/reject/revoke, audit events, and prove maintainer verification never upgrades agent evidence
 - complete save → opt-in version-drift alert → real upstream change → snapshot/event/notification → unread/read acceptance with controlled data and cleanup
+- strict `/can-hire` body parsing and malformed-input tests are implemented in open draft PR #30 only; current `main` and production have not received this fix
 - run underwriting negative and positive acceptance: anonymous/invalid JWT denial, missing evidence, blocked agent, prohibited writes, spend cap, stale evidence, unknown task, evidence IDs, malformed JSON/types, missing agent, cross-user behavior, and backend failure
 - prove 30/minute and 500/day per-user rate limits under concurrent load and verify limiter/database failures fail closed; do not trust client counters
 - execute additional task-specific external benchmark fixtures in bounded environments; distinguish framework plumbing from model-backed capability receipts

@@ -6,11 +6,15 @@
   "properties": {
     "agent_id": {
       "type": "string",
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 256,
+      "pattern": "^github:[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"
     },
     "task_type": {
       "type": "string",
-      "minLength": 2
+      "minLength": 2,
+      "maxLength": 80,
+      "pattern": "^[a-z][a-z0-9_]+$"
     },
     "limits": {
       "type": "object",
@@ -21,5 +25,6 @@
       "additionalProperties": false
     }
   },
+  "maxProperties": 3,
   "additionalProperties": false
 }

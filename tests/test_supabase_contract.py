@@ -144,6 +144,36 @@ class SupabaseContractTests(unittest.TestCase):
             source,
         )
 
+    def test_can_hire_validates_request_before_consuming_rate_limit(self):
+        source = (
+            ROOT
+            / "infra"
+            / "supabase"
+            / "functions"
+            / "can-hire"
+            / "index.ts"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn('req.method !== "POST"', source)
+        self.assertIn('parseCanHireJson(rawBody)', source)
+        self.assertLess(source.index("parseCanHireJson(rawBody)"), source.index('"consume_underwriting_rate_limit"'))
+        self.assertIn('requested.write_access ?? false', source)
+        self.assertIn('requested.max_spend_usd ?? 0', source)
+        self.assertNotIn('Boolean(requested.write_access)', source)
+        self.assertNotIn('Number(requested.max_spend_usd', source)
+
+    def test_can_hire_request_schema_has_bounded_strict_identifiers(self):
+        import json
+
+        schema = json.loads(
+            (
+                ROOT / "schemas" / "can-hire-request.schema.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertTrue(schema["additionalProperties"] is False)
+        self.assertEqual(schema["properties"]["agent_id"]["maxLength"], 256)
+        self.assertEqual(schema["properties"]["task_type"]["maxLength"], 80)
+
 
 if __name__ == "__main__":
     unittest.main()

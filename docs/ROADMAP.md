@@ -97,7 +97,8 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] authenticated Supabase Edge Function deployed
 - [x] write-access and spend-limit policy enforcement
 - [x] atomic authenticated per-user rate-limit implementation (30/minute and 500/day)
-- [ ] rate-limit concurrency/atomicity, malformed-body, and backend-outage fail-closed acceptance
+- [ ] rate-limit concurrency/atomicity and backend-outage fail-closed acceptance
+- [ ] verify strict malformed-body rejection on production after reviewed merge
 - [x] signed-in UI invokes deployed can-hire API
 - [ ] external API keys/rate limits (post-pilot unless required by a specific pilot)
 - [ ] organization policy overrides

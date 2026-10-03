@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { parseCanHireJson } from "./request_validation.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -47,6 +48,7 @@ const policies: Record<string, {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
@@ -72,12 +74,15 @@ Deno.serve(async (req) => {
       return json({ error: "invalid session" }, 401);
     }
 
-    const service = createClient(supabaseUrl, secretKey);
-    const body = await req.json();
-    const agentId = String(body.agent_id || "");
-    const taskType = String(body.task_type || "");
-    const requested = body.limits || {};
+    const rawBody = await req.text();
+    const parsed = parseCanHireJson(rawBody);
+    if (!parsed.ok) return json({ error: parsed.error }, parsed.status);
 
+    const { agent_id: agentId, task_type: taskType, limits: requested } = parsed.value;
+    const slug = slugForAgent(agentId);
+    if (!slug) return json({ error: "unsupported agent_id" }, 400);
+
+    const service = createClient(supabaseUrl, secretKey);
     const { data: rateLimit, error: rateLimitError } = await service.rpc(
       "consume_underwriting_rate_limit",
       {
@@ -115,9 +120,6 @@ Deno.serve(async (req) => {
       }, 200);
     }
 
-    const slug = slugForAgent(agentId);
-    if (!slug) return json({ error: "unsupported agent_id" }, 400);
-
     const trustResponse = await fetch(
       PUBLIC_BASE + "/trust-cards/" + slug + ".json",
       { headers: { "Cache-Control": "no-cache" } },
@@ -141,8 +143,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const writeAccess = Boolean(requested.write_access);
-    const spend = Math.max(0, Number(requested.max_spend_usd || 0));
+    const writeAccess = requested.write_access ?? false;
+    const spend = requested.max_spend_usd ?? 0;
 
     if (writeAccess && !policy.allowsWrite) {
       return decision(

@@ -280,7 +280,7 @@ The following criteria define closure evidence for the current private-alpha mil
 - Test authenticated success and anonymous/invalid-session denial.
 - Cover missing evidence → `INSUFFICIENT_EVIDENCE`, blocked agent → `DENY`, prohibited writes → `DENY`, spend caps, stale evidence, unknown task → `REVIEW_REQUIRED`, missing agent, malformed JSON/types, cross-user isolation, returned evidence IDs, and backend failure.
 - Rate limits are 30 requests/minute/user and 500 requests/day/user. Prove concurrency and atomicity, and prove database/RPC failure fails closed. Client counters are not trusted.
-- Any request-validation repair must reject unknown keys and incorrect types (including string booleans and NaN/Infinity spend values) before decision evaluation. Do not deploy production changes until reviewed and merged.
+- Strict request parsing and malformed-input unit/contract tests are implemented in draft PR #30. They are not yet in `main` or production; the live negative test remains open until reviewed merge and deployment. The parser rejects unknown keys and incorrect types (including string booleans and non-finite/negative spend values) before decision evaluation.
 
 ### Security, recovery, operations, and privacy
 
