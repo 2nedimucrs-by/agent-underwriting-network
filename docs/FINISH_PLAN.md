@@ -21,7 +21,7 @@ Pilot scope:
 - reproducible receipts only for fixtures and adapters actually executed;
 - no certification, universal safety claim, production permission, pay-to-rank, or paid influence over evidence.
 
-The proposed pilot report format is [PILOT_REPORT_TEMPLATE.md](./PILOT_REPORT_TEMPLATE.md). It is a blank delivery template; it is not evidence that any agent has passed.
+The proposed pilot report format is [PILOT_REPORT_TEMPLATE.md](./PILOT_REPORT_TEMPLATE.md). It is a blank delivery template; it is not evidence that any agent has passed. Prepare the customer-specific proposal with [PAID_PILOT_SCOPE_TEMPLATE.md](./PAID_PILOT_SCOPE_TEMPLATE.md); completed copies and customer agreements must stay outside this public repository.
 
 Payment readiness requires, at minimum:
 - buyer/problem interviews and written agreement on workflow, scope, fee, deliverables, and acceptance;
