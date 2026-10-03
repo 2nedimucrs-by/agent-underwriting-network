@@ -239,7 +239,7 @@ function decision(
   agentId: string,
   taskType: string,
   versionCommitSha: string,
-  reasons: string[]
+  reasons: string[],
   limits: Record<string, unknown>,
   evidenceIds: string[],
   missingDimensions: string[] = [],
