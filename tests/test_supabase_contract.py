@@ -155,7 +155,7 @@ class SupabaseContractTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
 
         self.assertIn('req.method !== "POST"', source)
-        self.assertIn('parseCanHireJson(rawBody)', source)
+        self.assertIn('parseCanHireJson(rawBody.value)', source)
         self.assertLess(source.index("parseCanHireJson(rawBody)"), source.index('"consume_underwriting_rate_limit"'))
         self.assertIn('requested.write_access ?? false', source)
         self.assertIn('requested.max_spend_usd ?? 0', source)
