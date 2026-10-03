@@ -78,43 +78,29 @@ Deno.serve(async (req) => {
     const taskType = String(body.task_type || "");
     const requested = body.limits || {};
 
-    const now = Date.now();
-    const minuteAgo = new Date(now - 60_000).toISOString();
-    const dayAgo = new Date(now - 86_400_000).toISOString();
+    const { data: rateLimit, error: rateLimitError } = await service.rpc(
+      "consume_underwriting_rate_limit",
+      {
+        p_user_id: userData.user.id,
+        p_agent_id: agentId.slice(0, 256) || null,
+        p_task_type: taskType.slice(0, 80) || null,
+      },
+    );
 
-    const [minuteCount, dayCount] = await Promise.all([
-      service
-        .from("underwriting_rate_events")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userData.user.id)
-        .gte("occurred_at", minuteAgo),
-      service
-        .from("underwriting_rate_events")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userData.user.id)
-        .gte("occurred_at", dayAgo),
-    ]);
-
-    if (minuteCount.error || dayCount.error) {
-      throw minuteCount.error || dayCount.error;
+    // Rate limiting is fail-closed: a database error or malformed response
+    // must never allow the underwriting request to continue.
+    if (rateLimitError) {
+      throw new Error("underwriting rate limit check failed");
     }
-
-    if ((minuteCount.count || 0) >= 30 || (dayCount.count || 0) >= 500) {
+    if (!rateLimit || typeof rateLimit.allowed !== "boolean") {
+      throw new Error("underwriting rate limit response is invalid");
+    }
+    if (rateLimit.allowed === false) {
       return json({
         error: "rate limit exceeded",
-        retry_after_seconds: (minuteCount.count || 0) >= 30 ? 60 : 3600,
+        retry_after_seconds: rateLimit.retry_after_seconds,
       }, 429);
     }
-
-    const { error: rateInsertError } = await service
-      .from("underwriting_rate_events")
-      .insert({
-        user_id: userData.user.id,
-        agent_id: String(body.agent_id || "") || null,
-        task_type: String(body.task_type || "") || null,
-      });
-
-    if (rateInsertError) throw rateInsertError;
 
     const policy = policies[taskType];
     if (!policy) {
