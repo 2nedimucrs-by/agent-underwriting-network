@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from hashlib import sha256
@@ -77,8 +78,10 @@ def run_fixture(
         if not isinstance(value, str) or not value.strip():
             raise ValueError(f"{field_name} must be a non-empty string")
 
-    if not isinstance(artifact_hash, str) or not artifact_hash.strip():
-        raise ValueError("artifact_hash must identify the exact tested artifact")
+    if not isinstance(artifact_hash, str) or not re.fullmatch(
+        r"[0-9a-fA-F]{64}", artifact_hash.strip()
+    ):
+        raise ValueError("artifact_hash must be a 64-character SHA-256 hex digest")
 
     if cost_usd is not None:
         if isinstance(cost_usd, bool) or not isinstance(cost_usd, (int, float)):
@@ -115,7 +118,7 @@ def run_fixture(
         "task_type": fixture.task_type,
         "environment_id": fixture.environment_id,
         "evaluator_version": fixture.evaluator_version,
-        "artifact_hash": artifact_hash.strip(),
+        "artifact_hash": artifact_hash.strip().lower(),
         "passed": passed,
         "score": normalized_score,
         "latency_ms": latency_ms,
