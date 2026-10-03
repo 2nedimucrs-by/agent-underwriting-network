@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 
+from aun.discovery import PUBLIC_BASE
+from aun.seo_validation import validate_sitemap
+
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
 
@@ -55,6 +58,16 @@ if agents:
     for extra in ("sitemap.xml", "robots.txt"):
         if not (SITE / extra).exists():
             raise SystemExit(f"missing generated SEO surface: {extra}")
+
+    try:
+        validate_sitemap(
+            SITE / "sitemap.xml",
+            SITE / "robots.txt",
+            agents,
+            PUBLIC_BASE,
+        )
+    except ValueError as exc:
+        raise SystemExit(f"generated SEO surfaces invalid: {exc}") from exc
 
     degraded_mode = bool(payload.get("degraded_mode"))
 

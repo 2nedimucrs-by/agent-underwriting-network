@@ -39,6 +39,9 @@ jobs:
         run: python scripts/write_runtime_config.py
       - name: Validate generated site
         run: python scripts/validate_static_site.py
+      - name: Probe deployed SEO endpoints (manual runs only)
+        if: github.event_name == 'workflow_dispatch'
+        run: python scripts/probe_live_seo.py
       - name: Scan public artifact for secret-like material
         run: python scripts/check_no_secrets.py
       - name: Configure Pages
@@ -51,6 +54,7 @@ jobs:
           path: site
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
