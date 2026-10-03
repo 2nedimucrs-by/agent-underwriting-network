@@ -69,7 +69,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] founder admin role active
 - [x] live analytics inserts observed
 - [x] admin metrics verified under authenticated RLS
-- [ ] optional Cloudflare Web Analytics
+- [x] Cloudflare Web Analytics token configured; deployed runtime previously verified beacon ON
 - [ ] retention/recovery automation
 - [ ] backup/export/recovery drill
 
@@ -99,6 +99,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [ ] audit export
 - [ ] usage metering
 - [ ] pricing/plan gates that never alter evidence truth
+- [ ] first paid B2B pilot delivered and accepted; seller and payment-route gates verified (see [FINISH_PLAN.md](./FINISH_PLAN.md))
 
 ## Phase 6 — Launch hardening
 
