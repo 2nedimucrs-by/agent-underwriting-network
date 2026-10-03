@@ -12,14 +12,18 @@ Apply these SQL files in order:
 4. `migrations/004_security_acl_hardening.sql` — remove unintended Data API execution of privileged helpers.
 5. `migrations/005_admin_rpc_security_invoker.sql` — run admin RPCs with caller/RLS privileges.
 6. `migrations/006_rls_initplan_and_fk_indexes.sql` — optimize RLS auth lookups and foreign-key indexes.
-7. `migrations/007_claim_challenge_and_audit.sql` — add repository challenge state and claim audit storage.
-8. `migrations/008_backend_service_role_grants.sql` — grant only the backend table access required by Edge Functions.
-9. `migrations/009_claim_status_audit_trigger.sql` — audit claim creation and state transitions.
-10. `migrations/010_public_agent_index_cache.sql` — persist a conservative last-known-good public discovery cache.
-11. `migrations/011_underwriting_rate_limits.sql` — add authenticated underwriting rate-event storage and retention.
-12. `migrations/012_advisor_cleanup.sql` — close remaining advisor findings introduced by later tables.
-13. `migrations/013_privacy_retention_cron.sql` — enforce privacy-first operational data retention.
-14. `migrations/014_underwriting_rate_limit_atomic.sql` — serialize per-user underwriting rate checks so concurrent requests cannot bypass limits.
+7. `migrations/20261002224150_enable_version_watch_scheduler_extensions.sql` — enable pg_cron, pg_net and Supabase Vault in their production schemas.
+8. `migrations/20261002224159_schedule_version_watch.sql` — idempotently configure the Vault-backed six-hour version-watch job.
+9. `migrations/007_claim_challenge_and_audit.sql` — add repository challenge state and claim audit storage.
+10. `migrations/008_backend_service_role_grants.sql` — grant only the backend table access required by Edge Functions.
+11. `migrations/009_claim_status_audit_trigger.sql` — audit claim creation and state transitions.
+12. `migrations/010_public_agent_index_cache.sql` — persist a conservative last-known-good public discovery cache.
+13. `migrations/011_underwriting_rate_limits.sql` — add authenticated underwriting rate-event storage and retention.
+14. `migrations/012_advisor_cleanup.sql` — close remaining advisor findings introduced by later tables.
+15. `migrations/013_privacy_retention_cron.sql` — enforce privacy-first operational data retention.
+16. `migrations/014_underwriting_rate_limit_atomic.sql` — serialize per-user underwriting rate checks so concurrent requests cannot bypass limits.
+
+The two time-prefixed migrations restore source for existing production ledger entries. The schedule migration reads `aun_version_watch_token` from Vault; it never contains the token value. Deploy `version-watch` before applying the schedule migration to a fresh project.
 
 ## Edge Functions
 
