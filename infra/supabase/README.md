@@ -4,6 +4,8 @@ Supabase provides the optional authenticated product backend for the public GitH
 
 ## Migration order
 
+**Fresh-project bootstrap only:** the ordered SQL list below is for a new, dedicated Supabase project. Do not replay it against the existing production project. The timestamped files restore migrations already recorded as applied in production, and the numbered files are historical sources; do not rerun `001_initial.sql` or these restored migrations during source reconciliation. Any future production DDL requires a separately reviewed deployment plan and verification against the live migration ledger.
+
 Apply these SQL files in the dependency order below. The time-prefixed filenames preserve their exact versions from the live Supabase migration ledger; the numbered files retain the repository's semantic sequence.
 
 1. `migrations/001_initial.sql` — profiles, claims, saved agents, alerts, analytics, RLS, admin RPCs.
