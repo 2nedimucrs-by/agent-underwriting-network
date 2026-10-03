@@ -92,7 +92,7 @@ class SupabaseContractTests(unittest.TestCase):
             / "infra"
             / "supabase"
             / "migrations"
-            / "012_underwriting_rate_limit_atomic.sql"
+            / "014_underwriting_rate_limit_atomic.sql"
         ).read_text(encoding="utf-8").lower()
 
         self.assertIn("set search_path = ''", sql)
