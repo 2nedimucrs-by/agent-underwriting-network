@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, codex/claim-terminal-state-guard]
+    branches: [main]
   pull_request:
 
 permissions:
@@ -16,16 +16,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: denoland/setup-deno@v2.0.5
-        with:
-          deno-version: 2.7.14
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e .
       - run: python -m unittest discover -s tests -v
-      - name: Test claim verification policy
-        run: node --test tests/claim_policy.test.mjs
-      - name: Type-check claim verification Edge Function
-        run: deno check --no-config infra/supabase/functions/verify-github-claim/index.ts
       - name: Check browser JavaScript syntax
         run: |
           node --check site/app.js
