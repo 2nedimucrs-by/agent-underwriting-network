@@ -10,6 +10,30 @@ The first sellable release is complete only when a visitor can discover an agent
 
 A public profile, maintainer claim, badge, or GitHub popularity signal must never be converted into a VERIFIED security/capability claim without reproducible evidence.
 
+## First commercial milestone — one paid B2B pilot
+
+The first revenue target is a manually delivered, human-reviewed pilot for one real workflow. Do not wait for a self-serve billing system, and do not add one before buyer demand is proven.
+
+Pilot scope:
+- one named business workflow and at most five exact, version-pinned agents;
+- time-boxed review with public or explicitly authorized evidence only;
+- source-linked evidence register, task-fit matrix, explicit unknowns, and review session;
+- reproducible receipts only for fixtures and adapters actually executed;
+- no certification, universal safety claim, production permission, pay-to-rank, or paid influence over evidence.
+
+The proposed pilot report format is [PILOT_REPORT_TEMPLATE.md](./PILOT_REPORT_TEMPLATE.md). It is a blank delivery template; it is not evidence that any agent has passed. Prepare the customer-specific proposal with [PAID_PILOT_SCOPE_TEMPLATE.md](./PAID_PILOT_SCOPE_TEMPLATE.md); completed copies and customer agreements must stay outside this public repository.
+
+Payment readiness requires, at minimum:
+- buyer/problem interviews and written agreement on workflow, scope, fee, deliverables, and acceptance;
+- privacy, terms, data handling, and security review for the actual pilot scope;
+- seller entity and tax review with qualified help, and confirmation that the chosen route is enabled for commercial B2B collection;
+- signed scope and an agreed due date before work starts;
+- delivery accepted by the buyer and payment confirmed before recording the first paid-pilot success.
+
+Use Payoneer only if the account enables the relevant business-to-business collection feature and the transaction meets its current terms. The first manual pilot does not grant software entitlements. Stripe remains excluded.
+
+
+
 ## Phase A — Foundation and public discovery — DONE
 
 Acceptance:
@@ -70,7 +94,7 @@ Acceptance:
 - new agent version marks older evidence stale unless declared reusable
 - VERIFIED capability requires a reproducible successful fixture
 
-## Phase D — Accounts, identity and claims — BACKEND READY NEXT
+## Phase D — Accounts, identity and claims — LIVE FEATURES; END-TO-END VALIDATION OPEN
 
 Target stack: Supabase Free + GitHub OAuth + email magic link.
 
@@ -97,7 +121,7 @@ External setup required:
 - GitHub OAuth App
 - Supabase URL/publishable key in GitHub repository variables
 
-## Phase E — Analytics and command center — FRONTEND/SCHEMA READY NEXT
+## Phase E — Analytics and command center — LIVE; RETENTION/RECOVERY OPEN
 
 Deliver:
 - privacy-first aggregate traffic analytics
@@ -144,7 +168,7 @@ Acceptance:
 - no autonomous bulk email
 - external sending remains approval-gated until policy/legal controls are proven
 
-## Phase G — Underwriting API and revenue
+## Phase G — Underwriting API and revenue — API CORE LIVE; COMMERCIAL ACCESS OPEN
 
 Deliver:
 - POST /can-hire contract
@@ -218,21 +242,14 @@ Then add:
 - transaction rails
 - escrow only if legally/operationally justified
 
-## Execution order
+## Execution order toward first paid pilot
 
-1. Agent control plane contracts
-2. Version drift + evidence lifecycle
-3. Dependency/permission adapters
-4. Security scanner adapters
-5. Capability benchmark harness
-6. Supabase schema + account frontend
-7. GitHub/email auth setup
-8. Claim verification backend
-9. Analytics + admin command center
-10. Saved agents + alerts
-11. GitHub Action + outreach queue
-12. Underwriting API
-13. Privacy/security/recovery hardening
-14. Private alpha customers
-15. Paid plans
-16. Labor exchange only after traction gate
+1. Keep the commercial plan and pilot report template aligned with actual product evidence.
+2. Execute capability fixtures against explicitly approved third-party agents in a bounded test environment; do not substitute mock harnesses for external evidence.
+3. Verify the live magic-link, maintainer-claim, saved-agent, version-drift, and notification paths with controlled test accounts and one real upstream version change.
+4. Close launch gate #16: abuse/rate-limit tests, backup/export/recovery drill, accessibility/browser QA, privacy/terms review, and monitoring/failure visibility.
+5. Conduct buyer/problem interviews; record willingness to pay separately from interest and secure written scope acceptance for one pilot.
+6. Confirm seller standing, tax responsibilities with qualified help, and that the chosen non-Stripe B2B payment method is enabled and suitable.
+7. Deliver and obtain acceptance for the scoped pilot; confirm collection before calling the product commercially ready.
+8. Only after pilot proof, add recurring checkout, provider webhooks, API keys, metering, and plan gates behind server-side authorization and truth-preserving tests.
+9. Keep the labor exchange gated until evidence-network traction is demonstrated.
