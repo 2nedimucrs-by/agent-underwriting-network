@@ -109,6 +109,36 @@ test("rejects an oversized declared body before reading its stream", async () =>
   assert.equal(readerRequested, false);
 });
 
+test("accepts a valid numeric Content-Length matching the stream", async () => {
+  const payload = '{"ok":true}';
+  const bytes = new TextEncoder().encode(payload);
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    },
+  });
+  assert.deepEqual(await readBoundedBody(stream, String(bytes.byteLength)), {
+    ok: true,
+    value: payload,
+  });
+});
+
+test("rejects a Content-Length that does not match the stream", async () => {
+  const bytes = new TextEncoder().encode('{"ok":true}');
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(bytes);
+      controller.close();
+    },
+  });
+  assert.deepEqual(await readBoundedBody(stream, String(bytes.byteLength + 1)), {
+    ok: false,
+    status: 400,
+    error: "content length does not match request body",
+  });
+});
+
 test("cancels a streaming body as soon as its bytes exceed the limit", async () => {
   let cancelled = false;
   const stream = new ReadableStream({
