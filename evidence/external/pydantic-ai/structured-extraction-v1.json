@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_type": "FRAMEWORK_EXECUTION_RECEIPT",
+  "target": {
+    "repository": "pydantic/pydantic-ai",
+    "package": "pydantic-ai-slim",
+    "package_version": "2.53.0",
+    "release_tag": "v2.53.0"
+  },
+  "artifact": {
+    "kind": "pypi-wheel",
+    "filename": "pydantic_ai_slim-2.53.0-py3-none-any.whl",
+    "sha256": "979fb5553cc32baf9f3aaeff7a83c19d6ce6d19c0284f5cd54087bc9870b2522"
+  },
+  "execution": {
+    "runner": "github-hosted",
+    "python": "3.12.14",
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "aun_commit": "07f27ba53208f9027413975ce89a11ee02dc692b",
+    "model_adapter": "pydantic_ai.models.test.TestModel",
+    "allow_model_requests": false,
+    "workflow_run_id": 37087946766,
+    "workflow_job_id": 111102002895,
+    "workflow_run_url": "https://github.com/2nedimucrs-by/agent-underwriting-network/actions/runs/37087946766",
+    "artifact_name": "aun-pydantic-ai-structured-receipt"
+  },
+  "scope": "PydanticAI framework execution and deterministic output plumbing for the AUN structured-extraction fixture.",
+  "limitations": [
+    "PydanticAI TestModel is procedural test code, not an LLM; this receipt does not demonstrate model reasoning quality.",
+    "The receipt supports only this exact package artifact and fixture; it is not a universal capability or safety claim.",
+    "PyPI wheel identity is recorded by SHA-256; source-release equivalence is referenced by release tag, not independently proven."
+  ],
+  "receipt": {
+    "artifact_hash": "979fb5553cc32baf9f3aaeff7a83c19d6ce6d19c0284f5cd54087bc9870b2522",
+    "cost_usd": null,
+    "details": {
+      "expected": {
+        "currency": "USD",
+        "order_id": "A-104",
+        "quantity": 3,
+        "total": 42.5
+      },
+      "observed": {
+        "currency": "USD",
+        "order_id": "A-104",
+        "quantity": 3,
+        "total": 42.5
+      }
+    },
+    "environment_id": "aun-fixture:structured-extraction-v1",
+    "evaluator_version": "1.0.0",
+    "fixture_id": "structured-extraction-v1",
+    "latency_ms": 473.65530100000086,
+    "passed": true,
+    "receipt_sha256": "aa8d39ca8e2bb9f7353e076ac411c442f0fbfae1b43efde4720faed2b81ce1ca",
+    "recorded_at_utc": "2026-10-03T01:55:59.324Z",
+    "score": 1.0,
+    "task_type": "structured_extraction"
+  }
+}
