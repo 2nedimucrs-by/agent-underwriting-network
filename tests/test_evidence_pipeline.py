@@ -66,7 +66,7 @@ class EvidencePipelineTests(unittest.TestCase):
         )
         receipt = run_fixture(
             fixture,
-            artifact_hash="abc",
+            artifact_hash="a" * 64,
             executor=lambda: {"ok": True},
             evaluator=lambda output: (
                 output == {"ok": True},
