@@ -19,6 +19,7 @@ Apply these SQL files in order:
 11. `migrations/011_underwriting_rate_limits.sql` — add authenticated underwriting rate-event storage and retention.
 12. `migrations/012_advisor_cleanup.sql` — close remaining advisor findings introduced by later tables.
 13. `migrations/013_privacy_retention_cron.sql` — enforce privacy-first operational data retention.
+14. `migrations/014_underwriting_rate_limit_atomic.sql` — serialize per-user underwriting rate checks so concurrent requests cannot bypass limits.
 
 ## Edge Functions
 

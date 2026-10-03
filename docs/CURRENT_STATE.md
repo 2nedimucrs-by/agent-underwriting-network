@@ -37,7 +37,7 @@ Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 - scanner failures represented explicitly rather than silently ignored
 - reproducible benchmark receipt protocol
 - canonical SHA-256 receipt self-check + timestamped receipt serialization
-- structured extraction + read-only file benchmark fixtures
+- complete initial fixture contracts: structured extraction, read-only file, repository read-only, browser read/navigation and MCP tool invocation
 
 Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner success does not create a global SAFE verdict.
 
@@ -65,6 +65,7 @@ Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner succe
 - can-hire Edge Function deployed
 - write-access policy enforcement
 - spend-limit enforcement
+- concurrency-safe underwriting rate limiter (30/minute, 500/day)
 - evidence IDs returned by decision contract
 - signed-in users use server-side underwriting API from the public underwriting page
 - anonymous users receive local fail-closed preview only

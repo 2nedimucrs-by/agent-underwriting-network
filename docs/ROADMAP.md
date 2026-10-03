@@ -31,6 +31,9 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] reproducible benchmark receipt protocol
 - [x] structured-extraction benchmark fixture
 - [x] read-only file benchmark fixture
+- [x] repository read-only benchmark fixture
+- [x] browser navigation/read benchmark fixture
+- [x] MCP tool invocation benchmark fixture
 - [ ] execute capability fixtures against real third-party agent adapters
 - [ ] persist full historical benchmark receipts
 - [ ] sandbox adapters for higher-risk runtime tests
@@ -93,6 +96,7 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] POST /can-hire request schema
 - [x] authenticated Supabase Edge Function deployed
 - [x] write-access and spend-limit policy enforcement
+- [x] concurrency-safe authenticated rate limits
 - [x] signed-in UI invokes deployed can-hire API
 - [ ] external API keys/rate limits
 - [ ] organization policy overrides
