@@ -58,6 +58,24 @@ class VersionWatchMigrationContractTests(unittest.TestCase):
         self.assertNotRegex(source, r"(?i)sb_secret_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]{10,}")
         self.assertNotRegex(source, r"'x-aun-cron-token'\s*,\s*'[^']{24,}'")
 
+    def test_readme_orders_timestamped_scheduler_migrations_after_014(self):
+        readme = (ROOT / "infra" / "supabase" / "README.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertLess(
+            readme.index("migrations/014_underwriting_rate_limit_atomic.sql"),
+            readme.index(
+                "migrations/20261002224150_enable_version_watch_scheduler_extensions.sql"
+            ),
+        )
+        self.assertLess(
+            readme.index(
+                "migrations/20261002224150_enable_version_watch_scheduler_extensions.sql"
+            ),
+            readme.index("migrations/20261002224159_schedule_version_watch.sql"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
