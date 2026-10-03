@@ -19,6 +19,7 @@ Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 - GitHub OAuth configured and live sign-in observed
 - founder account bootstrapped as admin
 - product analytics receiving live page-view events
+- Cloudflare Web Analytics deployed and runtime verified ON
 - admin metrics RPC verified under authenticated RLS context
 
 ## Evidence/control-plane implementation
@@ -35,6 +36,7 @@ Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 - scanner/tool version provenance
 - scanner failures represented explicitly rather than silently ignored
 - reproducible benchmark receipt protocol
+- canonical SHA-256 receipt self-check + timestamped receipt serialization
 - structured extraction + read-only file benchmark fixtures
 
 Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner success does not create a global SAFE verdict.
@@ -46,6 +48,7 @@ Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner succe
 - saved agents
 - version-drift alert preferences
 - claim status list
+- account data export
 - account deletion request
 - admin Command Center
 - server-side claim verifier deployed
@@ -74,8 +77,9 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 - only the scheduler-token SHA-256 digest is committed in source
 - Supabase Cron runs every six hours
 - manual smoke run succeeded
-- 125 initial version snapshots persisted
-- zero drift events on baseline
+- version snapshots continue to accumulate after upstream changes
+- version-drift events are being detected
+- user notification delivery remains empty until a user actively watches a changed agent
 - GitHub Actions duplicate schedule disabled
 
 ## Security/performance posture
@@ -96,7 +100,7 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 - test saved-agent + version-drift notification end-to-end on a real upstream version change
 - execute capability fixtures against real third-party agent adapters in a controlled sandbox
 - add API-key authentication/rate limits for external underwriting API customers
-- backup/export/recovery drill
+- backup/recovery drill
 - accessibility/mobile/browser acceptance
 - private alpha customer validation
 - jurisdiction-specific legal review
