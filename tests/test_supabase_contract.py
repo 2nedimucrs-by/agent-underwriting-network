@@ -86,6 +86,64 @@ class SupabaseContractTests(unittest.TestCase):
         self.assertNotIn("@gmail.com", sql.lower())
         self.assertNotIn("@outlook.com", sql.lower())
 
+    def test_underwriting_rate_limit_is_serialized_and_backend_only(self):
+        sql = (
+            ROOT
+            / "infra"
+            / "supabase"
+            / "migrations"
+            / "014_underwriting_rate_limit_atomic.sql"
+        ).read_text(encoding="utf-8").lower()
+
+        self.assertIn("set search_path = ''", sql)
+        self.assertIn("pg_catalog.pg_advisory_xact_lock", sql)
+        self.assertLess(
+            sql.index("pg_catalog.pg_advisory_xact_lock"),
+            sql.index("from public.underwriting_rate_events"),
+        )
+        self.assertLess(
+            sql.index("from public.underwriting_rate_events"),
+            sql.index("insert into public.underwriting_rate_events"),
+        )
+        self.assertIn(
+            "revoke all on function public.consume_underwriting_rate_limit(uuid, text, text)",
+            sql,
+        )
+        self.assertIn(
+            "from public, anon, authenticated",
+            sql,
+        )
+        self.assertIn(
+            "grant execute on function public.consume_underwriting_rate_limit(uuid, text, text)",
+            sql,
+        )
+        self.assertIn("to service_role", sql)
+
+    def test_can_hire_fails_closed_through_atomic_rate_limit_rpc(self):
+        source = (
+            ROOT
+            / "infra"
+            / "supabase"
+            / "functions"
+            / "can-hire"
+            / "index.ts"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn(
+            '"consume_underwriting_rate_limit"',
+            source,
+        )
+        self.assertIn("if (rateLimitError)", source)
+        self.assertIn(
+            'typeof rateLimit.allowed !== "boolean"',
+            source,
+        )
+        self.assertIn("if (rateLimit.allowed === false)", source)
+        self.assertNotIn(
+            '.from("underwriting_rate_events")',
+            source,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
