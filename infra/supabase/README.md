@@ -12,6 +12,13 @@ Apply these SQL files in order:
 4. `migrations/004_security_acl_hardening.sql` — remove unintended Data API execution of privileged helpers.
 5. `migrations/005_admin_rpc_security_invoker.sql` — run admin RPCs with caller/RLS privileges.
 6. `migrations/006_rls_initplan_and_fk_indexes.sql` — optimize RLS auth lookups and foreign-key indexes.
+7. `migrations/007_claim_challenge_and_audit.sql` — add repository challenge state and claim audit storage.
+8. `migrations/008_backend_service_role_grants.sql` — grant only the backend table access required by Edge Functions.
+9. `migrations/009_claim_status_audit_trigger.sql` — audit claim creation and state transitions.
+10. `migrations/010_public_agent_index_cache.sql` — persist a conservative last-known-good public discovery cache.
+11. `migrations/011_underwriting_rate_limits.sql` — add authenticated underwriting rate-event storage and retention.
+12. `migrations/012_advisor_cleanup.sql` — close remaining advisor findings introduced by later tables.
+13. `migrations/013_privacy_retention_cron.sql` — enforce privacy-first operational data retention.
 
 ## Edge Functions
 
@@ -21,6 +28,7 @@ Deploy:
 - `delete-account`
 - `can-hire`
 - `version-watch`
+- `export-my-data`
 
 ### Runtime keys
 
@@ -61,6 +69,8 @@ API-key authentication, organization policy overrides and metering are later har
 
 It creates in-app notifications only. No external email is sent automatically.
 
-## Account deletion
+## Account export and deletion
+
+`export-my-data` requires the authenticated user JWT and returns only account-owned product data that the current RLS policies allow the user to read.
 
 `delete-account` requires the authenticated user JWT and deletes only that Auth identity. Database child records configured with `ON DELETE CASCADE` are removed with it.
