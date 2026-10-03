@@ -3,7 +3,7 @@ const MAX_BODY_BYTES = 8192;
 /**
  * Parse and validate a POST /can-hire JSON body without coercing caller values.
  * @param {string} raw
- * @returns {{ ok: true, value: { agent_id: string, task_type: string, limits: { write_access?: boolean, max_spend_usd?: number } } } | { ok: false, status: number, error: string }}
+ * @returns {{ ok: true, value: { agent_id: string, task_type: string, version_commit_sha: string, limits: { write_access?: boolean, max_spend_usd?: number } } } | { ok: false, status: number, error: string }}
  */
 export function parseCanHireJson(raw) {
   if (typeof raw !== "string") {
