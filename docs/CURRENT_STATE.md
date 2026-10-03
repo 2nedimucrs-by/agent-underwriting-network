@@ -77,6 +77,10 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 
 `TECHNICAL_PRIVATE_ALPHA_READY=NO` while the engineering gates above remain open. `FIRST_PAID_PILOT_COMMERCIALLY_COMPLETE=NO`; no buyer acceptance or payment is evidenced. The live system is a public alpha, not a production certification service.
 
+## Supabase migration/source reconciliation
+
+Read-only production audit on 2026-10-03: the Supabase project is ACTIVE_HEALTHY in eu-central-1. Five active Edge Functions were retrieved from production and each deployed index.ts matched the corresponding main-branch source byte-for-byte. The live migration ledger contains 16 rows; the repository has 13 executable migration SQL files plus the example-only admin bootstrap file. The live ledger has no row named for 001_initial.sql, and version_watch_and_notifications appears twice. The exact source-to-ledger mapping and the origin of the initial schema still require reconciliation. No production schema or migration history was changed. Do not claim full production/source migration sync until this mapping and schema comparison are complete.
+
 ## Version-watch operations
 
 - Supabase Vault holds the scheduler token
