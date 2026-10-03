@@ -62,7 +62,9 @@ Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner succe
 - fail-closed task policy engine
 - task policy registry
 - can-hire request schema
-- can-hire Edge Function deployed
+- can-hire Edge Function deployed (v3), using the per-user atomic rate-limit RPC
+- atomic rate-limit migration applied; database catalog confirms SECURITY INVOKER, empty search_path, and EXECUTE limited to service_role
+- authenticated per-user limits are live; concurrent-load and fail-closed outage tests remain pending
 - write-access policy enforcement
 - spend-limit enforcement
 - evidence IDs returned by decision contract
@@ -99,7 +101,7 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 - test claim verification end-to-end from a Trust Card
 - test saved-agent + version-drift notification end-to-end on a real upstream version change
 - execute capability fixtures against real third-party agent adapters in a controlled sandbox
-- add API-key authentication/rate limits for external underwriting API customers
+- test authenticated per-user rate limits under concurrent load and API/database outage; add API-key authentication/rate limits for external underwriting API customers
 - backup/recovery drill
 - accessibility/mobile/browser acceptance
 - private alpha customer validation
