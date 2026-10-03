@@ -96,9 +96,10 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] POST /can-hire request schema
 - [x] authenticated Supabase Edge Function deployed
 - [x] write-access and spend-limit policy enforcement
-- [x] concurrency-safe authenticated rate limits
+- [x] atomic authenticated per-user rate-limit implementation (30/minute and 500/day)
+- [ ] rate-limit concurrency/atomicity, malformed-body, and backend-outage fail-closed acceptance
 - [x] signed-in UI invokes deployed can-hire API
-- [ ] external API keys/rate limits
+- [ ] external API keys/rate limits (post-pilot unless required by a specific pilot)
 - [ ] organization policy overrides
 - [ ] private agent registry
 - [x] user account data export
@@ -116,12 +117,19 @@ The detailed execution contract is in [FINISH_PLAN.md](./FINISH_PLAN.md).
 - [x] live non-admin RLS visibility test
 - [x] Supabase security advisor critical privilege findings cleared
 - [x] RLS init-plan performance findings cleared
-- [ ] live user-session Edge Function smoke tests
-- [ ] abuse/rate-limit tests
-- [ ] backup/recovery drill
-- [ ] accessibility/mobile/browser acceptance
-- [ ] private alpha customer evidence
-- [ ] jurisdiction-specific legal review
+- [ ] GitHub OAuth and magic-link session create/refresh/sign-out acceptance; anonymous/self/admin/cross-user RLS checks
+- [ ] claim E2E: personal owner and org/collaborator challenge; expiry, wrong token/claim, replay, admin approve/reject/revoke, audit, and evidence-separation checks
+- [ ] save/watch → real version change → snapshot/drift → notification unread/read chain with controlled data and cleanup
+- [ ] underwriting auth, malformed/unknown/missing input, missing/stale evidence, blocked agent, prohibited writes, spend cap, unknown task, cross-user, backend failure, and returned evidence ID tests
+- [ ] 30/minute and 500/day per-user concurrency/atomicity tests; limiter failure must fail closed
+- [ ] RLS/function abuse tests; verify no service-role material in public assets
+- [ ] account export/deletion and cascade acceptance; database backup/recovery drill with RPO/RTO assumptions
+- [ ] Edge Function, version-watch, discovery, Pages, and CI failure visibility
+- [ ] browser/accessibility acceptance for home, Trust Card, compare, underwrite, account, and admin on desktop, tablet, and mobile in supported browsers
+- [ ] consent, analytics privacy/admin boundary, retention, export/deletion, and test-traffic separation acceptance
+- [ ] external task-specific benchmark receipts in bounded environments, correctly classified as framework or model-capability evidence
+- [ ] private-alpha buyer/problem evidence; legal review and seller/payment eligibility remain external human gates
+- [ ] technical private-alpha readiness only after engineering gates pass; first paid pilot remains incomplete until buyer acceptance and payment
 
 ## Phase 7 — Verified Labor Exchange — GATED
 

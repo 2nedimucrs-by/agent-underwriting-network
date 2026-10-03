@@ -13,7 +13,7 @@ Production scheduling runs inside Supabase using:
 
 The active production schedule is every six hours.
 
-A smoke run initialized 125 version snapshots successfully.
+The initial smoke run initialized 125 version snapshots. The live table snapshot later showed 159 snapshots and 34 drift events; notification rows were 0 at the last check, consistent with no completed saved-agent watch → changed-version → user notification chain. Counts are point-in-time, not acceptance evidence.
 
 ## Safety model
 
@@ -37,7 +37,7 @@ Only its SHA-256 digest is present in the Edge Function source. The raw token is
 
 Current implementation creates in-app `user_notifications` rows only.
 
-No email, SMS or external notification is sent automatically.
+No email, SMS or external notification is sent automatically. End-to-end acceptance is still open: save an agent, opt in to version-drift alerts, observe a real upstream version change, verify snapshot and drift rows, verify the user's unread notification, mark it read, and clean up controlled test data without changing real user preferences.
 
 ## GitHub Actions
 

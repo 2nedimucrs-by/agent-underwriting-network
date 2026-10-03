@@ -47,6 +47,10 @@ A policy determines:
 
 Customers may configure stricter future organization policies. A paid plan must never purchase a better evidence verdict.
 
-### Authentication
+### Authentication and limits
 
-The first deployable Edge Function version requires a valid Supabase user session. Organization/API-key authentication and rate limits are a later production-hardening step.
+The deployed `can-hire` function requires an authenticated Supabase user session. Anonymous and invalid-session requests must be denied. Authenticated per-user rate limits are implemented atomically at 30 requests per minute and 500 per day; external organization/API-key authentication is deferred until a specific pilot or post-pilot demand requires it.
+
+Rate-limit implementation is not acceptance proof. Required tests cover concurrency/atomicity, malformed JSON and field types, missing agents, unknown tasks, invalid JWTs, cross-user isolation, and database/RPC failure. The limit must fail closed when the authority is unavailable. Client-provided counters are never trusted.
+
+Request parsing must reject non-object bodies, unknown fields, missing or malformed agent/task identifiers, non-boolean `write_access`, and non-finite, negative, or wrongly typed `max_spend_usd` before evaluating a decision. Malformed requests return a client error and must not consume a successful decision path. Until the server-side validation fix and tests are merged, malformed-body acceptance remains OPEN.

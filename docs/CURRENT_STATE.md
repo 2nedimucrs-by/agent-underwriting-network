@@ -19,7 +19,8 @@ Status: PUBLIC_ALPHA_BACKEND_AND_EVIDENCE_PLATFORM_ACTIVE
 - GitHub OAuth configured and live sign-in observed
 - founder account bootstrapped as admin
 - product analytics receiving live page-view events
-- Cloudflare Web Analytics deployed and runtime verified ON
+- Cloudflare Web Analytics deployed; latest Pages runtime reports `cloudflare=ON`, and the live page contains the Cloudflare beacon script
+- Main Pages deployment #196 succeeded on `6c0736e056378420941802b342807ced84e14804`; the main CI run on that exact commit also succeeded
 - admin metrics RPC verified under authenticated RLS context
 
 ## Evidence/control-plane implementation
@@ -65,12 +66,16 @@ Public GitHub metadata and static signals remain EVIDENCE_PARTIAL. Scanner succe
 - can-hire Edge Function deployed
 - write-access policy enforcement
 - spend-limit enforcement
-- concurrency-safe underwriting rate limiter (30/minute, 500/day)
+- atomic authenticated per-user underwriting rate limiter implemented (30/minute, 500/day); concurrency, malformed-body, and backend-outage acceptance tests are still open
 - evidence IDs returned by decision contract
 - signed-in users use server-side underwriting API from the public underwriting page
 - anonymous users receive local fail-closed preview only
 
 Current public evidence is intentionally insufficient for most ALLOW decisions.
+
+## Acceptance status
+
+`TECHNICAL_PRIVATE_ALPHA_READY=NO` while the engineering gates above remain open. `FIRST_PAID_PILOT_COMMERCIALLY_COMPLETE=NO`; no buyer acceptance or payment is evidenced. The live system is a public alpha, not a production certification service.
 
 ## Version-watch operations
 
@@ -96,15 +101,17 @@ Current public evidence is intentionally insufficient for most ALLOW decisions.
 
 ## Remaining activation / validation work
 
-- verify email magic-link flow interactively
-- test claim verification end-to-end from a Trust Card
-- test saved-agent + version-drift notification end-to-end on a real upstream version change
-- execute capability fixtures against real third-party agent adapters in a controlled sandbox
-- add API-key authentication/rate limits for external underwriting API customers
-- backup/recovery drill
-- accessibility/mobile/browser acceptance
-- private alpha customer validation
-- jurisdiction-specific legal review
+- run complete GitHub OAuth and email magic-link acceptance: session creation/refresh/sign-out and anonymous, self, admin, and cross-user RLS boundaries; only the real email-link click may remain a user action
+- test personal-owner and organization/collaborator claim paths, challenge binding/expiry/replay, admin approve/reject/revoke, audit events, and prove maintainer verification never upgrades agent evidence
+- complete save → opt-in version-drift alert → real upstream change → snapshot/event/notification → unread/read acceptance with controlled data and cleanup
+- run underwriting negative and positive acceptance: anonymous/invalid JWT denial, missing evidence, blocked agent, prohibited writes, spend cap, stale evidence, unknown task, evidence IDs, malformed JSON/types, missing agent, cross-user behavior, and backend failure
+- prove 30/minute and 500/day per-user rate limits under concurrent load and verify limiter/database failures fail closed; do not trust client counters
+- execute additional task-specific external benchmark fixtures in bounded environments; distinguish framework plumbing from model-backed capability receipts
+- complete RLS/function abuse tests, account export/deletion cascade checks, backup/recovery drill with documented RPO/RTO assumptions, and Edge Function/version-watch/discovery/Pages/CI failure visibility
+- complete browser and accessibility acceptance for home, Trust Card, compare, underwriting, account, and admin across desktop/tablet/mobile viewports and supported browsers
+- verify consent, non-public analytics/raw-IP boundary, admin-only analytics access, retention, export/deletion, and that own test sessions are not counted as organic traffic
+- finish private-alpha buyer validation; legal/tax/payment-route review and real customer/pilot acceptance remain human/external gates
+- external API-key authentication, organization overrides, recurring billing, usage metering, and self-serve checkout remain post-pilot unless a concrete pilot requires them
 
 ## Product truth boundary
 
